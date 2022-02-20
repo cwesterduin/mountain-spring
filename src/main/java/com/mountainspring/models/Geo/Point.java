@@ -5,7 +5,7 @@ import java.util.ArrayList;
 public class Point extends ArrayList<Double> {
 
     public Point() {
-        super(2);
+        super(0);
     }
 
     public Point(Double[] initialElements) {

@@ -36,7 +36,7 @@ public class Event {
     @Type(type = "json")
     private List<Point> coordinates;
 
-    private String descriptionID;
+    private String descriptionId;
 
     @Column(columnDefinition = "TEXT")
     private String description;
@@ -46,6 +46,9 @@ public class Event {
     private Double elevation;
 
     private Double distance;
+
+    @ManyToMany
+    private List<Media> media;
 
     @Override
     public boolean equals(Object o) {

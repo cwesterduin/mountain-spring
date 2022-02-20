@@ -7,7 +7,6 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 
 @SpringBootApplication
 @EnableConfigurationProperties
-@EntityScan("com.mountainspring.models")
 public class MountainSpringApplication {
 
     public static void main(String[] args) {
