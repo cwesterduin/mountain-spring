@@ -1,7 +1,5 @@
-package com.mountainspring.controllers;
+package com.mountainspring.media;
 
-import com.mountainspring.models.Media;
-import com.mountainspring.repositories.MediaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;

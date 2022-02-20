@@ -1,6 +1,7 @@
-package com.mountainspring.models;
+package com.mountainspring.event;
 
-import com.mountainspring.models.Geo.Point;
+import com.mountainspring.models.Point;
+import com.mountainspring.media.Media;
 import com.vladmihalcea.hibernate.type.json.JsonStringType;
 import lombok.*;
 

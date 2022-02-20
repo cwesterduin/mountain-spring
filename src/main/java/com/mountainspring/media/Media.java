@@ -1,4 +1,4 @@
-package com.mountainspring.models;
+package com.mountainspring.media;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

@@ -1,7 +1,7 @@
-package com.mountainspring.controllers;
+package com.mountainspring.trip;
 
-import com.mountainspring.models.Trip;
-import com.mountainspring.repositories.TripRepository;
+import com.mountainspring.trip.Trip;
+import com.mountainspring.trip.TripRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

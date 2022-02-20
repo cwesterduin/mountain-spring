@@ -1,4 +1,4 @@
-package com.mountainspring.models.Geo;
+package com.mountainspring.models;
 
 import java.util.ArrayList;
 

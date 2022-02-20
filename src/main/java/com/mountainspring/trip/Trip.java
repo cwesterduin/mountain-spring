@@ -1,5 +1,6 @@
-package com.mountainspring.models;
+package com.mountainspring.trip;
 
+import com.mountainspring.media.Media;
 import lombok.*;
 import org.hibernate.Hibernate;
 
