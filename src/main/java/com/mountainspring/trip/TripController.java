@@ -14,6 +14,9 @@ public class TripController {
     @Autowired
     private TripRepository tripRepository;
 
+    @Autowired
+    private TripService tripService;
+
     @PostMapping(value = "", consumes = "application/json")
     public void saveNew(@RequestBody Trip trip) {
         tripRepository.save(trip);
@@ -22,7 +25,10 @@ public class TripController {
     @GetMapping("/{id}")
     public ResponseEntity<?> getOne(@PathVariable Long id) {
         if (tripRepository.existsById(id)) {
-            return new ResponseEntity<>(tripRepository.findById(id), HttpStatus.OK);
+            return new ResponseEntity<>(
+                    tripService.mapForFrontend(id),
+                    HttpStatus.OK
+            );
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }

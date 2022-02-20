@@ -1,7 +1,9 @@
 package com.mountainspring.event;
 
+import com.fasterxml.jackson.annotation.*;
 import com.mountainspring.models.Point;
 import com.mountainspring.media.Media;
+import com.mountainspring.trip.Trip;
 import com.vladmihalcea.hibernate.type.json.JsonStringType;
 import lombok.*;
 
@@ -50,6 +52,11 @@ public class Event {
 
     @ManyToMany
     private List<Media> media;
+
+    @OneToOne
+    @JsonIdentityInfo(generator= ObjectIdGenerators.PropertyGenerator.class, property="id",  scope = Trip.class)
+    @JsonIdentityReference(alwaysAsId = true)
+    private Trip trip;
 
     @Override
     public boolean equals(Object o) {

@@ -14,22 +14,37 @@ public class EventController {
     @Autowired
     private EventRepository eventRepository;
 
+    @Autowired
+    private EventService eventService;
+
     @GetMapping("")
     public List<Event> getAll() {
         return eventRepository.findAll();
     }
 
+    @PostMapping(value = "", consumes = "application/json")
+    public void saveNew(@RequestBody Event event) {
+        eventRepository.save(event);
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<?> getOne(@PathVariable Long id) {
         if (eventRepository.existsById(id)) {
-            return new ResponseEntity<>(eventRepository.findById(id), HttpStatus.OK);
+            return new ResponseEntity<>(
+                    eventService.mapForFrontend(id),
+                    HttpStatus.OK
+            );
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
-    @PostMapping(value = "", consumes = "application/json")
-    public void saveNew(@RequestBody Event event) {
-        eventRepository.save(event);
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteOne(@PathVariable Long id) {
+        if (eventRepository.existsById(id)) {
+            eventRepository.deleteById(id);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
 }
