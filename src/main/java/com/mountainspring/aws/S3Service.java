@@ -83,27 +83,24 @@ public class S3Service {
     }
 
 
-    public void seedS3ObjectData(String bucketName, String region) throws JsonProcessingException {
+    public List<S3Object> listFolderImages(String bucketName, String folderName){
+        return s3ObjectRepository.findAllFolderImages(bucketName, folderName);
+    }
 
+
+    public void seedS3ObjectData(String bucketName, String region) {
         List<S3ObjectSummary> resultSummaries = getS3ObjectSummaries(bucketName);
-
         List<S3Object> s3ObjectsToSave = new ArrayList<>();
-
-
         resultSummaries.forEach(r -> {
-
             String classification = "file";
             if (r.getSize() == 0) {
                 classification = "folder";
             } else {
                 List<String> pathList = Arrays.stream(r.getKey().split("(?<=/)")).collect(Collectors.toList());
                 pathList.remove(pathList.size() - 1);
-
-
                 while (pathList.size() > 0) {
                     String path = String.join("", pathList);
                     if (s3ObjectsToSave.stream().noneMatch(s3o -> s3o.getPath().equals(path))) {
-
                         S3Object s3ObjectToAdd = new S3Object();
                         s3ObjectToAdd.setId(UUID.randomUUID());
                         s3ObjectToAdd.setBucketName(bucketName);
@@ -111,15 +108,11 @@ public class S3Service {
                         s3ObjectToAdd.setClassification("folder");
                         s3ObjectToAdd.setRegion(region);
                         s3ObjectsToSave.add(s3ObjectToAdd);
-
                         pathList.remove(pathList.size() - 1);
                     } else {
                         pathList.clear();
                     }
-
                 }
-
-
             }
             S3Object s3ObjectToAdd = new S3Object();
             s3ObjectToAdd.setId(UUID.randomUUID());
@@ -135,7 +128,6 @@ public class S3Service {
 
     }
 
-
     private List<S3ObjectSummary> getS3ObjectSummaries(String bucketName) {
         ObjectListing result = s3.listObjects(bucketName);
         List<S3ObjectSummary> objectSummaries = new ArrayList<>(result.getObjectSummaries());
@@ -149,43 +141,97 @@ public class S3Service {
     }
 
     public void uploadS3Image(String bucketName, MultipartFile[] files, MultipartFile[] folders) {
+
+        List<S3Object> s3ObjectsToSave = new ArrayList<>();
+
         try {
-            for (MultipartFile multipartFile : files) {
+            if (files != null) {
+                for (MultipartFile multipartFile : files) {
 
-                ByteArrayOutputStream os = new ByteArrayOutputStream();
-                
-                BufferedImage image = ImageIO.read(multipartFile.getInputStream());
+                    BufferedImage image = ImageIO.read(multipartFile.getInputStream());
 
-                int targetHeight;
-                int targetWidth = 800;
+                    // scale image to target width keep original ration
+                    int targetHeight;
+                    int targetWidth = 800;
+                    double originalHeight = image.getHeight();
+                    double originalWidth = image.getWidth();
+                    double targetRatio = originalHeight / originalWidth;
+                    targetHeight = (int) (targetRatio * targetWidth);
+                    Image scaledImage = image.getScaledInstance(targetWidth, targetHeight, Image.SCALE_DEFAULT);
 
-                double originalHeight = image.getHeight();
-                double originalWidth = image.getWidth();
+                    //create a new image of size defined above
+                    BufferedImage buffered = new BufferedImage(targetWidth, targetHeight, image.getType());
+                    buffered.createGraphics().drawImage(scaledImage, 0, 0, null);
 
-                double targetRatio = originalHeight/originalWidth;
-                targetHeight = (int) (targetRatio * targetWidth);
+                    //convert image data to s3 compatible format
+                    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                    ImageIO.write(buffered, "jpg", outputStream);
+                    InputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
 
-                Image scaledImage = image.getScaledInstance(targetWidth, targetHeight, Image.SCALE_DEFAULT);
+                    //upload the resized image to s3
+                    ObjectMetadata metadata = new ObjectMetadata();
+                    metadata.setContentType("jpg");
+                    PutObjectResult s3Upload = s3.putObject(bucketName, multipartFile.getOriginalFilename(), inputStream, metadata);
 
-
-                BufferedImage buffered = new BufferedImage(targetWidth, targetHeight, image.getType());
-                buffered.getGraphics().drawImage(scaledImage, 0, 0 , null);
-
-                ImageIO.write(buffered, "jpg", os);
-                InputStream is = new ByteArrayInputStream(os.toByteArray());
-
-                // Upload a file as a new object with ContentType and title specified.
-                ObjectMetadata metadata = new ObjectMetadata();
-                metadata.setContentType("jpg");
-
-                s3.putObject(bucketName, multipartFile.getOriginalFilename(), is, metadata);
+                    //add to list of s3 database entities
+                    S3Object s3ObjectToAdd = new S3Object();
+                    s3ObjectToAdd.setId(UUID.randomUUID());
+                    s3ObjectToAdd.setBucketName(bucketName);
+                    s3ObjectToAdd.setPath(multipartFile.getOriginalFilename());
+                    s3ObjectToAdd.setClassification("file");
+                    s3ObjectToAdd.setRegion(s3.getRegionName());
+                    s3ObjectsToSave.add(s3ObjectToAdd);
+                }
             }
-            InputStream emptyContent = new ByteArrayInputStream(new byte[0]);
-            for (MultipartFile multipartFile : folders) {
-                ObjectMetadata metadata = new ObjectMetadata();
-                metadata.setContentLength(0);
-                s3.putObject(bucketName, multipartFile.getOriginalFilename(), emptyContent, metadata);
+
+            if (folders != null) {
+                InputStream emptyContent = new ByteArrayInputStream(new byte[0]);
+                for (MultipartFile multipartFile : folders) {
+                    //upload folders to s3
+                    ObjectMetadata metadata = new ObjectMetadata();
+                    metadata.setContentLength(0);
+                    s3.putObject(bucketName, multipartFile.getOriginalFilename(), emptyContent, metadata);
+
+                    //add to list of s3 database entities
+                    S3Object s3ObjectToAdd = new S3Object();
+                    s3ObjectToAdd.setId(UUID.randomUUID());
+                    s3ObjectToAdd.setBucketName(bucketName);
+                    s3ObjectToAdd.setPath(multipartFile.getOriginalFilename());
+                    s3ObjectToAdd.setClassification("folder");
+                    s3ObjectToAdd.setRegion(s3.getRegionName());
+                    s3ObjectsToSave.add(s3ObjectToAdd);
+                }
             }
+
+            //establish and save reference for any new folders
+            List<S3Object> s3FoldersToSave = new ArrayList<>();
+            for (S3Object s3Object : s3ObjectsToSave) {
+                List<String> pathList = Arrays.stream(s3Object.getPath().split("(?<=/)")).collect(Collectors.toList());
+                pathList.remove(pathList.size() - 1);
+                while (pathList.size() > 0) {
+                    String path = String.join("", pathList);
+                    if (
+                                    s3ObjectsToSave.stream().noneMatch(s3o -> s3o.getPath().equals(path))
+                                    && s3FoldersToSave.stream().noneMatch(s3o -> s3o.getPath().equals(path))
+                                    && s3ObjectRepository.findByPath(path) == null
+                    ) {
+                        S3Object s3ObjectToAdd = new S3Object();
+                        s3ObjectToAdd.setId(UUID.randomUUID());
+                        s3ObjectToAdd.setBucketName(bucketName);
+                        s3ObjectToAdd.setPath(path);
+                        s3ObjectToAdd.setClassification("folder");
+                        s3ObjectToAdd.setRegion(s3.getRegionName());
+                        s3FoldersToSave.add(s3ObjectToAdd);
+                        pathList.remove(pathList.size() - 1);
+                    } else {
+                        pathList.clear();
+                    }
+                }
+            }
+            //combine folders and files to save all
+            s3ObjectsToSave.addAll(s3FoldersToSave);
+            s3ObjectRepository.saveAll(s3ObjectsToSave);
+
         } catch (AmazonServiceException e) {
             // The call was transmitted successfully, but Amazon S3 couldn't process
             // it, so it returned an error response.
@@ -199,13 +245,5 @@ public class S3Service {
         }
 
     }
-
-    private static File multipartToFile(MultipartFile multipart, String fileName) throws IllegalStateException, IOException {
-        File convFile = new File(System.getProperty("java.io.tmpdir")+"/"+fileName);
-        multipart.transferTo(convFile);
-        return convFile;
-    }
-
-
 
 }

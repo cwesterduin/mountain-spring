@@ -18,13 +18,13 @@ public class EventController {
     private EventService eventService;
 
     @GetMapping("")
-    public List<Event> getAll() {
-        return eventRepository.findAll();
+    public List<EventFrontend> getAll() {
+        return eventService.getAllFrontend();
     }
 
     @PostMapping(value = "", consumes = "application/json")
     public void saveNew(@RequestBody Event event) {
-        eventRepository.save(event);
+        eventService.createOrUpdate(event);
     }
 
     @GetMapping("/{id}")

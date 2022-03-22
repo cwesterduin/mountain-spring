@@ -25,14 +25,23 @@ public class MapFeature {
     @GeneratedValue
     private Long id;
 
+    private String name;
+
+    private String type;
+
+    private String height;
+
+    private String translation;
+
+    private String pronunciation;
+
+    private String munroOrder;
+
     @Column(columnDefinition = "json")
     @Type(type = "json")
     private Point coordinate;
 
     @ManyToOne
     private Media image;
-
-    @ManyToOne
-    private Event event;
 
 }

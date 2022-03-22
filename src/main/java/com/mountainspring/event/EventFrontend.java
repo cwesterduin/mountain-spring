@@ -1,5 +1,8 @@
 package com.mountainspring.event;
 
+import com.mountainspring.eventMedia.EventMedia;
+import com.mountainspring.eventMedia.EventMediaFrontend;
+import com.mountainspring.mapFeature.MapFeature;
 import com.mountainspring.media.Media;
 import com.mountainspring.models.Point;
 import com.mountainspring.trip.TripFrontend;
@@ -19,6 +22,7 @@ public class EventFrontend {
     private Integer rating;
     private Double elevation;
     private Double distance;
-    private List<Media> media;
+    private List<EventMediaFrontend> media;
+    private List<MapFeature> mapFeatures;
     private TripFrontend trip;
 }

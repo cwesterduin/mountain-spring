@@ -1,46 +1,49 @@
-package com.mountainspring.media;
+package com.mountainspring.eventMedia;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-import com.mountainspring.eventMedia.EventMedia;
+import com.mountainspring.event.Event;
+import com.mountainspring.media.Media;
 import com.nimbusds.jose.shaded.json.annotate.JsonIgnore;
 import lombok.*;
 import org.hibernate.Hibernate;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
-import java.util.*;
+import javax.persistence.*;
+import java.util.Objects;
 
 @Entity
 @Getter
 @Setter
 @ToString
 @RequiredArgsConstructor
-public class Media {
+public class EventMedia {
 
     @Id
     @GeneratedValue
     private Long id;
 
-    private String description;
-
-    private String path;
-
-    @OneToMany(mappedBy = "media")
-    @ToString.Exclude
+    @ManyToOne
+    @JoinColumn(name = "event_id")
     @JsonIgnore
     @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class , property = "id")
-    private List<EventMedia> eventMedia = new ArrayList<>();
+    private Event event;
+
+    @ManyToOne
+    @JoinColumn(name = "media_id")
+    @JsonIgnore
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class , property = "id")
+    private Media media;
+
+    @Column(name = "sort_order")
+    private int sortOrder;
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
-        Media media = (Media) o;
-        return id != null && Objects.equals(id, media.id);
+        EventMedia that = (EventMedia) o;
+        return id != null && Objects.equals(id, that.id);
     }
 
     @Override

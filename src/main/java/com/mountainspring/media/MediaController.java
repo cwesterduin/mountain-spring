@@ -33,13 +33,13 @@ public class MediaController {
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteOne(@PathVariable Long id) {
-        if (mediaRepository.existsById(id)) {
-            mediaService.cascadeDeleteMedia(id);
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        }
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-    }
+//    @DeleteMapping("/{id}")
+//    public ResponseEntity<?> deleteOne(@PathVariable Long id) {
+//        if (mediaRepository.existsById(id)) {
+//            mediaService.cascadeDeleteMedia(id);
+//            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+//        }
+//        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+//    }
 
 }

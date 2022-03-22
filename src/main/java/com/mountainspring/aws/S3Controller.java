@@ -28,17 +28,25 @@ public class S3Controller {
     }
 
     @GetMapping("/{bucketName}/folders")
-    public List<String> getFolderStruct(@PathVariable String bucketName) throws JsonProcessingException {
+    public List<String> getFolderStruct(@PathVariable String bucketName) {
         return s3Service.listBucketFolders(bucketName);
     }
 
+    @GetMapping("/{bucketName}/images")
+    public List<S3Object> getFolderImages(@PathVariable String bucketName, @RequestParam String folderName) {
+        return s3Service.listFolderImages(bucketName, folderName);
+    }
+
     @PostMapping("/seed/{bucketName}/{region}")
-    public void seedS3Data(@PathVariable String bucketName, @PathVariable String region) throws JsonProcessingException {
+    public void seedS3Data(@PathVariable String bucketName, @PathVariable String region) {
         s3Service.seedS3ObjectData(bucketName, region);
     }
 
     @PostMapping("/{bucketName}/upload")
-    public void uploadS3File(@PathVariable String bucketName, @RequestParam("files") MultipartFile[] files, @RequestParam("folders") MultipartFile[] folders) throws JsonProcessingException {
+    public void uploadS3File(@PathVariable String bucketName,
+                             @RequestParam(value = "files", required = false) MultipartFile[] files,
+                             @RequestParam(value = "folders", required = false) MultipartFile[] folders)
+            throws JsonProcessingException {
         s3Service.uploadS3Image(bucketName, files, folders);
     }
 

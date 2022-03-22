@@ -33,6 +33,7 @@ public class Trip {
     @OneToMany
     @JsonIdentityInfo(generator= ObjectIdGenerators.PropertyGenerator.class, property="id", scope = Event.class)
     @JsonIdentityReference(alwaysAsId = true)
+    @ToString.Exclude
     private List<Event> events;
 
     @Override

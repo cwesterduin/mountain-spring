@@ -1,10 +1,11 @@
 package com.mountainspring.mapFeature;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/map-features")
@@ -19,8 +20,14 @@ public class MapFeatureController {
     }
 
     @GetMapping(value = "/{id}")
-    public Optional<MapFeature> getOne(@PathVariable Long id) {
-        return mapFeatureRepository.findById(id);
+    public ResponseEntity<?> getOne(@PathVariable Long id) {
+        if (mapFeatureRepository.existsById(id)) {
+            return new ResponseEntity<>(
+                    mapFeatureRepository.findById(id),
+                    HttpStatus.OK
+            );
+        }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
     @PostMapping(value = "", consumes = "application/json")

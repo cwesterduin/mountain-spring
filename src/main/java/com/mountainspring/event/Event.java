@@ -1,9 +1,12 @@
 package com.mountainspring.event;
 
 import com.fasterxml.jackson.annotation.*;
+import com.mountainspring.eventMedia.EventMedia;
+import com.mountainspring.mapFeature.MapFeature;
 import com.mountainspring.models.Point;
 import com.mountainspring.media.Media;
 import com.mountainspring.trip.Trip;
+import com.nimbusds.jose.shaded.json.annotate.JsonIgnore;
 import com.vladmihalcea.hibernate.type.json.JsonStringType;
 import lombok.*;
 
@@ -13,9 +16,7 @@ import org.hibernate.annotations.TypeDef;
 
 import javax.persistence.*;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 
 @Entity
@@ -50,8 +51,16 @@ public class Event {
 
     private Double distance;
 
+    @OneToMany(mappedBy = "event")
+    @ToString.Exclude
+    @JsonIgnore
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class , property = "id")
+    private List<EventMedia> eventMedia = new ArrayList<>();
+
     @ManyToMany
-    private List<Media> media;
+    @ToString.Exclude
+    private List<MapFeature> mapFeatures;
+
 
     @OneToOne
     @JsonIdentityInfo(generator= ObjectIdGenerators.PropertyGenerator.class, property="id",  scope = Trip.class)
