@@ -159,6 +159,8 @@ public class EventService {
         eventToSave.setCoordinates(event.getCoordinates());
         eventToSave.setDescription(event.getDescription());
         eventToSave.setDescriptionId(event.getDescriptionId());
+        eventToSave.setElevation(event.getElevation());
+        eventToSave.setDistance(event.getDistance());
         eventToSave.setMapFeatures(event.getMapFeatures());
         eventToSave.setRating(event.getRating());
 
