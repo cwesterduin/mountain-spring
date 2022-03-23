@@ -1,8 +1,8 @@
 package com.mountainspring.trip;
 
 import com.fasterxml.jackson.annotation.*;
+import com.mountainspring.aws.S3Object;
 import com.mountainspring.event.Event;
-import com.mountainspring.media.Media;
 import lombok.*;
 import org.hibernate.Hibernate;
 
@@ -28,7 +28,7 @@ public class Trip {
     private String description;
 
     @OneToOne
-    private Media primaryImage;
+    private S3Object primaryImage;
 
     @OneToMany
     @JsonIdentityInfo(generator= ObjectIdGenerators.PropertyGenerator.class, property="id", scope = Event.class)

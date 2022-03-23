@@ -1,7 +1,6 @@
 package com.mountainspring.mapFeature;
 
-import com.mountainspring.event.Event;
-import com.mountainspring.media.Media;
+import com.mountainspring.aws.S3Object;
 import com.mountainspring.models.Point;
 import com.vladmihalcea.hibernate.type.json.JsonStringType;
 import lombok.Getter;
@@ -42,6 +41,6 @@ public class MapFeature {
     private Point coordinate;
 
     @ManyToOne
-    private Media image;
+    private S3Object primaryImage;
 
 }

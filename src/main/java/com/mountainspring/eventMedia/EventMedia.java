@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.mountainspring.aws.S3Object;
 import com.mountainspring.event.Event;
-import com.mountainspring.media.Media;
 import com.nimbusds.jose.shaded.json.annotate.JsonIgnore;
 import lombok.*;
 import org.hibernate.Hibernate;

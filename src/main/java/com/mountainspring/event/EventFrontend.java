@@ -1,9 +1,7 @@
 package com.mountainspring.event;
 
-import com.mountainspring.eventMedia.EventMedia;
 import com.mountainspring.eventMedia.EventMediaFrontend;
 import com.mountainspring.mapFeature.MapFeature;
-import com.mountainspring.media.Media;
 import com.mountainspring.models.Point;
 import com.mountainspring.trip.TripFrontend;
 import lombok.Data;

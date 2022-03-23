@@ -1,6 +1,5 @@
 package com.mountainspring.eventMedia;
 
-import com.mountainspring.media.Media;
 import lombok.Data;
 
 import java.util.UUID;

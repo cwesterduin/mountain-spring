@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.*;
 import com.mountainspring.eventMedia.EventMedia;
 import com.mountainspring.mapFeature.MapFeature;
 import com.mountainspring.models.Point;
-import com.mountainspring.media.Media;
 import com.mountainspring.trip.Trip;
 import com.nimbusds.jose.shaded.json.annotate.JsonIgnore;
 import com.vladmihalcea.hibernate.type.json.JsonStringType;
