@@ -3,11 +3,13 @@ package com.mountainspring.eventMedia;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.mountainspring.aws.S3Object;
 import com.mountainspring.event.Event;
 import com.mountainspring.media.Media;
 import com.nimbusds.jose.shaded.json.annotate.JsonIgnore;
 import lombok.*;
 import org.hibernate.Hibernate;
+import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
 import java.util.Objects;
@@ -30,10 +32,11 @@ public class EventMedia {
     private Event event;
 
     @ManyToOne
-    @JoinColumn(name = "media_id")
+    @JoinColumn(name = "s3_object_id")
+    @Type(type = "org.hibernate.type.UUIDCharType")
     @JsonIgnore
     @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class , property = "id")
-    private Media media;
+    private S3Object media;
 
     @Column(name = "sort_order")
     private int sortOrder;

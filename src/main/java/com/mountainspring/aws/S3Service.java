@@ -102,7 +102,6 @@ public class S3Service {
                     String path = String.join("", pathList);
                     if (s3ObjectsToSave.stream().noneMatch(s3o -> s3o.getPath().equals(path))) {
                         S3Object s3ObjectToAdd = new S3Object();
-                        s3ObjectToAdd.setId(UUID.randomUUID());
                         s3ObjectToAdd.setBucketName(bucketName);
                         s3ObjectToAdd.setPath(path);
                         s3ObjectToAdd.setClassification("folder");
@@ -115,7 +114,6 @@ public class S3Service {
                 }
             }
             S3Object s3ObjectToAdd = new S3Object();
-            s3ObjectToAdd.setId(UUID.randomUUID());
             s3ObjectToAdd.setBucketName(bucketName);
             s3ObjectToAdd.setPath(r.getKey());
             s3ObjectToAdd.setClassification(classification);
@@ -175,7 +173,6 @@ public class S3Service {
 
                     //add to list of s3 database entities
                     S3Object s3ObjectToAdd = new S3Object();
-                    s3ObjectToAdd.setId(UUID.randomUUID());
                     s3ObjectToAdd.setBucketName(bucketName);
                     s3ObjectToAdd.setPath(multipartFile.getOriginalFilename());
                     s3ObjectToAdd.setClassification("file");
@@ -194,7 +191,6 @@ public class S3Service {
 
                     //add to list of s3 database entities
                     S3Object s3ObjectToAdd = new S3Object();
-                    s3ObjectToAdd.setId(UUID.randomUUID());
                     s3ObjectToAdd.setBucketName(bucketName);
                     s3ObjectToAdd.setPath(multipartFile.getOriginalFilename());
                     s3ObjectToAdd.setClassification("folder");
@@ -216,7 +212,6 @@ public class S3Service {
                                     && s3ObjectRepository.findByPath(path) == null
                     ) {
                         S3Object s3ObjectToAdd = new S3Object();
-                        s3ObjectToAdd.setId(UUID.randomUUID());
                         s3ObjectToAdd.setBucketName(bucketName);
                         s3ObjectToAdd.setPath(path);
                         s3ObjectToAdd.setClassification("folder");

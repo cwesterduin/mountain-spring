@@ -1,9 +1,13 @@
 package com.mountainspring.event;
 
+import com.mountainspring.aws.S3Object;
+import com.mountainspring.aws.S3ObjectRepository;
 import com.mountainspring.eventMedia.EventMedia;
 import com.mountainspring.eventMedia.EventMediaFrontend;
 import com.mountainspring.eventMedia.EventMediaRepository;
+import com.mountainspring.trip.Trip;
 import com.mountainspring.trip.TripFrontend;
+import com.mountainspring.trip.TripRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +25,12 @@ public class EventService {
 
     @Autowired
     private EventMediaRepository eventMediaRepository;
+
+    @Autowired
+    private S3ObjectRepository s3ObjectRepository;
+
+    @Autowired
+    private TripRepository tripRepository;
 
     EventFrontend mapForFrontend(Long id) {
         Event event = eventRepository.findById(id).orElse(null);
@@ -44,7 +54,9 @@ public class EventService {
                 List<EventMediaFrontend> mediaFrontendList = new ArrayList<>();
                 event.getEventMedia().forEach(media -> {
                     EventMediaFrontend mediaFrontend = new EventMediaFrontend();
-                    mediaFrontend.setPath(media.getMedia().getPath());
+                    mediaFrontend.setPath(
+                            "https://" + media.getMedia().getBucketName() + ".s3." + media.getMedia().getRegion() + ".amazonaws.com/" + media.getMedia().getPath()
+                    );
                     mediaFrontend.setSortOrder(media.getSortOrder());
                     mediaFrontend.setId(media.getId());
                     mediaFrontend.setMediaId(media.getMedia().getId());
@@ -98,7 +110,10 @@ public class EventService {
                 List<EventMediaFrontend> mediaFrontendList = new ArrayList<>();
                 event.getEventMedia().forEach(media -> {
                     EventMediaFrontend mediaFrontend = new EventMediaFrontend();
-                    mediaFrontend.setPath(media.getMedia().getPath());                    mediaFrontend.setSortOrder(media.getSortOrder());
+                    mediaFrontend.setPath(
+                            "https://" + media.getMedia().getBucketName() + ".s3." + media.getMedia().getRegion() + ".amazonaws.com/" + media.getMedia().getPath()
+                    );
+                    mediaFrontend.setSortOrder(media.getSortOrder());
                     mediaFrontend.setId(media.getId());
                     mediaFrontend.setMediaId(media.getMedia().getId());
                     mediaFrontendList.add(mediaFrontend);
@@ -132,17 +147,49 @@ public class EventService {
 
     }
 
-    public void createOrUpdate(Event event) {
-        Optional<Event> resultEvent = eventRepository.findById(event.getId());
-        resultEvent.ifPresent(eventToSave -> {
-            eventRepository.save(eventToSave);
-        });
-        event.getEventMedia().forEach(em -> {
-            Optional<EventMedia> eventMedia = eventMediaRepository.findById(em.getId());
-            eventMedia.ifPresent(emp -> {
-                emp.setSortOrder(em.getSortOrder());
-                eventMediaRepository.save(emp);
-            });
+    public void createOrUpdate(EventFrontend event) {
+        Event eventToSave = new Event();
+
+        //simple values
+        if (event.getId() != null) {
+            eventToSave.setId(event.getId());
+        }
+        eventToSave.setName(event.getName());
+        eventToSave.setDate(event.getDate());
+        eventToSave.setCoordinates(event.getCoordinates());
+        eventToSave.setDescription(event.getDescription());
+        eventToSave.setDescriptionId(event.getDescriptionId());
+        eventToSave.setMapFeatures(event.getMapFeatures());
+        eventToSave.setRating(event.getRating());
+
+        //trip
+        if (event.getTrip() != null) {
+            Optional<Trip> trip = tripRepository.findById(event.getTrip().getId());
+            if (trip.isPresent()) {
+                eventToSave.setTrip(trip.get());
+            } else {
+                eventToSave.setTrip(null);
+            }
+        }
+
+        Event savedEvent = eventRepository.save(eventToSave);
+
+
+        event.getMedia().forEach(em -> {
+            EventMedia eventMediaToSave = new EventMedia();
+
+            if (em.getId() != null) {
+                eventMediaToSave.setId(em.getId());
+            }
+            eventMediaToSave.setSortOrder(em.getSortOrder());
+            eventMediaToSave.setEvent(savedEvent);
+            Optional<S3Object> s3Object = s3ObjectRepository.findById(em.getMediaId());
+            if (s3Object.isPresent()) {
+                eventMediaToSave.setMedia(s3Object.get());
+            } else {
+                eventMediaToSave.setMedia(null);
+            }
+            eventMediaRepository.save(eventMediaToSave);
         });
     }
 }

@@ -1,5 +1,6 @@
 package com.mountainspring.event;
 
+import com.mountainspring.eventMedia.EventMediaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +16,9 @@ public class EventController {
     private EventRepository eventRepository;
 
     @Autowired
+    private EventMediaRepository eventMediaRepository;
+
+    @Autowired
     private EventService eventService;
 
     @GetMapping("")
@@ -23,7 +27,7 @@ public class EventController {
     }
 
     @PostMapping(value = "", consumes = "application/json")
-    public void saveNew(@RequestBody Event event) {
+    public void saveNew(@RequestBody EventFrontend event) {
         eventService.createOrUpdate(event);
     }
 
@@ -42,6 +46,17 @@ public class EventController {
     public ResponseEntity<?> deleteOne(@PathVariable Long id) {
         if (eventRepository.existsById(id)) {
             eventRepository.deleteById(id);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+
+    @DeleteMapping("/media/{id}")
+    public ResponseEntity<?> deleteOneEventMedia(
+            @PathVariable Long id
+    ) {
+        if (eventMediaRepository.existsById(id)) {
+            eventMediaRepository.deleteById(id);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
