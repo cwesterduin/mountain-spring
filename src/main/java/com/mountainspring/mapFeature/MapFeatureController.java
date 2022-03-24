@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/map-features")
@@ -20,7 +21,7 @@ public class MapFeatureController {
     }
 
     @GetMapping(value = "/{id}")
-    public ResponseEntity<?> getOne(@PathVariable Long id) {
+    public ResponseEntity<?> getOne(@PathVariable UUID id) {
         if (mapFeatureRepository.existsById(id)) {
             return new ResponseEntity<>(
                     mapFeatureRepository.findById(id),
@@ -36,7 +37,7 @@ public class MapFeatureController {
     }
 
     @DeleteMapping(value = "/{id}", consumes = "application/json")
-    public void deleteOne(@PathVariable Long id) {
+    public void deleteOne(@PathVariable UUID id) {
         mapFeatureRepository.deleteById(id);
     }
 

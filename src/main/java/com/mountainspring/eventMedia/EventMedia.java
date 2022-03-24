@@ -8,10 +8,12 @@ import com.mountainspring.event.Event;
 import com.nimbusds.jose.shaded.json.annotate.JsonIgnore;
 import lombok.*;
 import org.hibernate.Hibernate;
+import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
 import java.util.Objects;
+import java.util.UUID;
 
 @Entity
 @Getter
@@ -21,8 +23,10 @@ import java.util.Objects;
 public class EventMedia {
 
     @Id
-    @GeneratedValue
-    private Long id;
+    @GeneratedValue(generator = "UUID")
+    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
+    @Type(type = "org.hibernate.type.UUIDCharType")
+    private UUID id;
 
     @ManyToOne
     @JoinColumn(name = "event_id")

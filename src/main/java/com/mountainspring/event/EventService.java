@@ -11,10 +11,7 @@ import com.mountainspring.trip.TripRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -32,7 +29,7 @@ public class EventService {
     @Autowired
     private TripRepository tripRepository;
 
-    EventFrontend mapForFrontend(Long id) {
+    EventFrontend mapForFrontend(UUID id) {
         Event event = eventRepository.findById(id).orElse(null);
         EventFrontend eventFrontend = new EventFrontend();
         if (event != null) {

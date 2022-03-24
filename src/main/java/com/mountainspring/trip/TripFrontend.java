@@ -5,10 +5,11 @@ import com.mountainspring.event.EventFrontend;
 import lombok.Data;
 
 import java.util.List;
+import java.util.UUID;
 
 @Data
 public class TripFrontend {
-    private Long id;
+    private UUID id;
     private String name;
     private String description;
     private S3Object primaryImage;

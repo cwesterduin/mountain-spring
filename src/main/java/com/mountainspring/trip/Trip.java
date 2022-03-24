@@ -5,11 +5,14 @@ import com.mountainspring.aws.S3Object;
 import com.mountainspring.event.Event;
 import lombok.*;
 import org.hibernate.Hibernate;
+import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 @Entity
 @Getter
@@ -19,8 +22,10 @@ import java.util.Objects;
 public class Trip {
 
     @Id
-    @GeneratedValue
-    private Long id;
+    @GeneratedValue(generator = "UUID")
+    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
+    @Type(type = "org.hibernate.type.UUIDCharType")
+    private UUID id;
 
     @Column(unique = true)
     private String name;

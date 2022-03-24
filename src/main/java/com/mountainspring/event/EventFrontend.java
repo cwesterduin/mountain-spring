@@ -8,10 +8,11 @@ import lombok.Data;
 
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 @Data
 public class EventFrontend {
-    private Long id;
+    private UUID id;
     private String name;
     private Date date;
     private List<Point> coordinates;

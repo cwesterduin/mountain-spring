@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/events")
@@ -32,7 +33,7 @@ public class EventController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getOne(@PathVariable Long id) {
+    public ResponseEntity<?> getOne(@PathVariable UUID id) {
         if (eventRepository.existsById(id)) {
             return new ResponseEntity<>(
                     eventService.mapForFrontend(id),
@@ -43,7 +44,7 @@ public class EventController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteOne(@PathVariable Long id) {
+    public ResponseEntity<?> deleteOne(@PathVariable UUID id) {
         if (eventRepository.existsById(id)) {
             eventRepository.deleteById(id);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -53,7 +54,7 @@ public class EventController {
 
     @DeleteMapping("/media/{id}")
     public ResponseEntity<?> deleteOneEventMedia(
-            @PathVariable Long id
+            @PathVariable UUID id
     ) {
         if (eventMediaRepository.existsById(id)) {
             eventMediaRepository.deleteById(id);

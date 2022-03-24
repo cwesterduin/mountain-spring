@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/trips")
@@ -33,7 +34,7 @@ public class TripController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getOne(@PathVariable Long id) {
+    public ResponseEntity<?> getOne(@PathVariable UUID id) {
         if (tripRepository.existsById(id)) {
             return new ResponseEntity<>(
                     tripService.mapForFrontend(id),

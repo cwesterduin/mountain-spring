@@ -10,6 +10,7 @@ import com.vladmihalcea.hibernate.type.json.JsonStringType;
 import lombok.*;
 
 import org.hibernate.Hibernate;
+import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 
@@ -27,8 +28,10 @@ import java.util.*;
 public class Event {
 
     @Id
-    @GeneratedValue
-    private Long id;
+    @GeneratedValue(generator = "UUID")
+    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
+    @Type(type = "org.hibernate.type.UUIDCharType")
+    private UUID id;
 
     @Column(unique = true)
     private String name;
