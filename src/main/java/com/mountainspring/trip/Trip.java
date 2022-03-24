@@ -7,6 +7,7 @@ import lombok.*;
 import org.hibernate.Hibernate;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -30,11 +31,11 @@ public class Trip {
     @OneToOne
     private S3Object primaryImage;
 
-    @OneToMany
+    @OneToMany(mappedBy = "trip")
     @JsonIdentityInfo(generator= ObjectIdGenerators.PropertyGenerator.class, property="id", scope = Event.class)
     @JsonIdentityReference(alwaysAsId = true)
     @ToString.Exclude
-    private List<Event> events;
+    private List<Event> events = new ArrayList<>();
 
     @Override
     public boolean equals(Object o) {

@@ -7,6 +7,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/trips")
 public class TripController {
@@ -16,6 +18,14 @@ public class TripController {
 
     @Autowired
     private TripService tripService;
+
+    @GetMapping("")
+    public ResponseEntity<?> getAll() {
+        return new ResponseEntity<>(
+                tripService.mapAllForFrontend(),
+                HttpStatus.OK
+        );
+    }
 
     @PostMapping(value = "", consumes = "application/json")
     public void saveNew(@RequestBody Trip trip) {

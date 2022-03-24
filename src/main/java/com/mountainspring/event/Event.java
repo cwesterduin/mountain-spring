@@ -61,7 +61,7 @@ public class Event {
     private List<MapFeature> mapFeatures;
 
 
-    @OneToOne
+    @ManyToOne()
     @JsonIdentityInfo(generator= ObjectIdGenerators.PropertyGenerator.class, property="id",  scope = Trip.class)
     @JsonIdentityReference(alwaysAsId = true)
     private Trip trip;

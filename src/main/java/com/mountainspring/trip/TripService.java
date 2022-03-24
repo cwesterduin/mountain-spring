@@ -38,4 +38,33 @@ public class TripService {
         return tripFrontend;
     }
 
+    List<TripFrontend> mapAllForFrontend() {
+        List<Trip> allTrips = tripRepository.findAll();
+        List<TripFrontend> allTripsFrontend = new ArrayList<>();
+        for (Trip trip : allTrips) {
+            TripFrontend tripFrontend = new TripFrontend();
+            if (trip != null) {
+                tripFrontend.setName(trip.getName());
+                tripFrontend.setPrimaryImage(trip.getPrimaryImage());
+                tripFrontend.setId(trip.getId());
+                tripFrontend.setDescription(trip.getDescription());
+
+                if (trip.getEvents() != null) {
+                    List<EventFrontend> frontEndEvents = new ArrayList<>();
+                    trip.getEvents().forEach(e -> {
+                                EventFrontend eventFrontend = new EventFrontend();
+                                eventFrontend.setId(e.getId());
+                                eventFrontend.setName(e.getName());
+                                eventFrontend.setDate(e.getDate());
+                                frontEndEvents.add(eventFrontend);
+                            }
+                    );
+                    tripFrontend.setEvents(frontEndEvents);
+                }
+            }
+            allTripsFrontend.add(tripFrontend);
+        }
+        return allTripsFrontend;
+    }
+
 }
