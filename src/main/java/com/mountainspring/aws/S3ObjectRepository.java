@@ -22,5 +22,5 @@ public interface S3ObjectRepository extends JpaRepository<S3Object, UUID> {
     List<S3Object> findAllFolderImages(String bucketName, String folderName);
 
 
-
+    boolean existsS3ObjectByPathAndBucketName(String originalFilename, String bucketName);
 }

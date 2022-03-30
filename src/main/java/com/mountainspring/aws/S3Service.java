@@ -145,8 +145,10 @@ public class S3Service {
         try {
             if (files != null) {
                 for (MultipartFile multipartFile : files) {
+                    System.out.println(multipartFile.getContentType());
 
                     BufferedImage image = ImageIO.read(multipartFile.getInputStream());
+
 
                     // scale image to target width keep original ration
                     int targetHeight;
@@ -170,6 +172,11 @@ public class S3Service {
                     ObjectMetadata metadata = new ObjectMetadata();
                     metadata.setContentType("jpg");
                     PutObjectResult s3Upload = s3.putObject(bucketName, multipartFile.getOriginalFilename(), inputStream, metadata);
+
+                    //check if ref exists in db
+                    if (s3ObjectRepository.existsS3ObjectByPathAndBucketName(multipartFile.getOriginalFilename(), bucketName)) {
+                        break;
+                    }
 
                     //add to list of s3 database entities
                     S3Object s3ObjectToAdd = new S3Object();
