@@ -52,4 +52,7 @@ public class TripService {
         return allTripsFrontend;
     }
 
+    public List<TripProjection> getAllPreview() {
+        return tripRepository.getAllPreview();
+    }
 }

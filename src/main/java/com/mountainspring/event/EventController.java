@@ -23,8 +23,8 @@ public class EventController {
     private EventService eventService;
 
     @GetMapping("")
-    public List<EventFrontend> getAll() {
-        return eventService.getAllFrontend();
+    public List<EventProjection> getAll() {
+        return eventService.getAllFrontendPreview();
     }
 
     @PostMapping(value = "", consumes = "application/json")

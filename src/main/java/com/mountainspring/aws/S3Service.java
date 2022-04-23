@@ -91,6 +91,7 @@ public class S3Service {
     public void seedS3ObjectData(String bucketName, String region) {
         List<S3ObjectSummary> resultSummaries = getS3ObjectSummaries(bucketName);
         List<S3Object> s3ObjectsToSave = new ArrayList<>();
+        resultSummaries = resultSummaries.stream().filter(r -> r.getKey().startsWith("images")).collect(Collectors.toList());
         resultSummaries.forEach(r -> {
             String classification = "file";
             if (r.getSize() == 0) {

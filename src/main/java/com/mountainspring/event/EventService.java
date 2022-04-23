@@ -87,61 +87,65 @@ public class EventService {
         return eventFrontend;
     }
 
-    public List<EventFrontend> getAllFrontend() {
-        List<EventFrontend> returnAllFrontend = new ArrayList<>();
-        eventRepository.findAll().forEach(event -> {
-            EventFrontend eventFrontend = new EventFrontend();
-            eventFrontend.setId(event.getId());
-            eventFrontend.setName(event.getName());
-            eventFrontend.setRating(event.getRating());
-            eventFrontend.setCoordinates(event.getCoordinates());
-            eventFrontend.setDate(event.getDate());
-            eventFrontend.setDescription(event.getDescription());
-            eventFrontend.setDescriptionId(event.getDescriptionId());
-            eventFrontend.setDistance(event.getDistance());
-            eventFrontend.setElevation(event.getElevation());
-            eventFrontend.setMapFeatures(event.getMapFeatures());
+//    public List<EventFrontend> getAllFrontend() {
+//        List<EventFrontend> returnAllFrontend = new ArrayList<>();
+//        eventRepository.findAll().forEach(event -> {
+//            EventFrontend eventFrontend = new EventFrontend();
+//            eventFrontend.setId(event.getId());
+//            eventFrontend.setName(event.getName());
+//            eventFrontend.setRating(event.getRating());
+//            eventFrontend.setCoordinates(event.getCoordinates());
+//            eventFrontend.setDate(event.getDate());
+//            eventFrontend.setDescription(event.getDescription());
+//            eventFrontend.setDescriptionId(event.getDescriptionId());
+//            eventFrontend.setDistance(event.getDistance());
+//            eventFrontend.setElevation(event.getElevation());
+//            eventFrontend.setMapFeatures(event.getMapFeatures());
+//
+//            //media data
+//            if (event.getEventMedia() != null) {
+//                List<EventMediaFrontend> mediaFrontendList = new ArrayList<>();
+//                event.getEventMedia().forEach(media -> {
+//                    EventMediaFrontend mediaFrontend = new EventMediaFrontend();
+//                    mediaFrontend.setPath(
+//                            "https://" + media.getMedia().getBucketName() + ".s3." + media.getMedia().getRegion() + ".amazonaws.com/" + media.getMedia().getPath()
+//                    );
+//                    mediaFrontend.setSortOrder(media.getSortOrder());
+//                    mediaFrontend.setId(media.getId());
+//                    mediaFrontend.setMediaId(media.getMedia().getId());
+//                    mediaFrontendList.add(mediaFrontend);
+//                });
+//                eventFrontend.setMedia(mediaFrontendList);
+//            }
+//
+//            //trip data
+//            if (event.getTrip() != null) {
+//                TripFrontend tripFrontend = new TripFrontend();
+//                tripFrontend.setDescription(event.getTrip().getDescription());
+//                tripFrontend.setName(event.getTrip().getName());
+//                tripFrontend.setId(event.getTrip().getId());
+//                tripFrontend.setPrimaryImage(event.getTrip().getPrimaryImage());
+//                //set simple ref to other trip events
+//                List<EventFrontend> otherEvents = new ArrayList<>();
+//                event.getTrip().getEvents().forEach(e -> {
+//                    EventFrontend otherEvent = new EventFrontend();
+//                    otherEvent.setName(e.getName());
+//                    otherEvent.setId(e.getId());
+//                    otherEvent.setDate(e.getDate());
+//                    otherEvents.add(otherEvent);
+//                });
+//                tripFrontend.setEvents(otherEvents);
+//                //set trip
+//                eventFrontend.setTrip(tripFrontend);
+//            }
+//            returnAllFrontend.add(eventFrontend);
+//        });
+//        return returnAllFrontend;
+//
+//    }
 
-            //media data
-            if (event.getEventMedia() != null) {
-                List<EventMediaFrontend> mediaFrontendList = new ArrayList<>();
-                event.getEventMedia().forEach(media -> {
-                    EventMediaFrontend mediaFrontend = new EventMediaFrontend();
-                    mediaFrontend.setPath(
-                            "https://" + media.getMedia().getBucketName() + ".s3." + media.getMedia().getRegion() + ".amazonaws.com/" + media.getMedia().getPath()
-                    );
-                    mediaFrontend.setSortOrder(media.getSortOrder());
-                    mediaFrontend.setId(media.getId());
-                    mediaFrontend.setMediaId(media.getMedia().getId());
-                    mediaFrontendList.add(mediaFrontend);
-                });
-                eventFrontend.setMedia(mediaFrontendList);
-            }
-
-            //trip data
-            if (event.getTrip() != null) {
-                TripFrontend tripFrontend = new TripFrontend();
-                tripFrontend.setDescription(event.getTrip().getDescription());
-                tripFrontend.setName(event.getTrip().getName());
-                tripFrontend.setId(event.getTrip().getId());
-                tripFrontend.setPrimaryImage(event.getTrip().getPrimaryImage());
-                //set simple ref to other trip events
-                List<EventFrontend> otherEvents = new ArrayList<>();
-                event.getTrip().getEvents().forEach(e -> {
-                    EventFrontend otherEvent = new EventFrontend();
-                    otherEvent.setName(e.getName());
-                    otherEvent.setId(e.getId());
-                    otherEvent.setDate(e.getDate());
-                    otherEvents.add(otherEvent);
-                });
-                tripFrontend.setEvents(otherEvents);
-                //set trip
-                eventFrontend.setTrip(tripFrontend);
-            }
-            returnAllFrontend.add(eventFrontend);
-        });
-        return returnAllFrontend;
-
+    public List<EventProjection> getAllFrontendPreview() {
+        return eventRepository.getAllPreview();
     }
 
     public void createOrUpdate(EventFrontend event) {

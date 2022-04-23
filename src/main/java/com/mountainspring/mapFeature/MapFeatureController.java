@@ -16,8 +16,8 @@ public class MapFeatureController {
     private MapFeatureRepository mapFeatureRepository;
 
     @GetMapping(value = "")
-    public List<MapFeature> getAll() {
-        return mapFeatureRepository.findAll();
+    public List<MapFeatureProjection> getAll() {
+        return mapFeatureRepository.getAllPreview();
     }
 
     @GetMapping(value = "/{id}")

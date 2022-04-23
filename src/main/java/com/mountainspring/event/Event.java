@@ -81,4 +81,8 @@ public class Event {
     public int hashCode() {
         return getClass().hashCode();
     }
+
+    public boolean getCoordinatesAsBoolean(){
+        return coordinates == null;
+    }
 }

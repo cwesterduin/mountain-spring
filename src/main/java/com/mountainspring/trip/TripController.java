@@ -23,7 +23,7 @@ public class TripController {
     @GetMapping("")
     public ResponseEntity<?> getAll() {
         return new ResponseEntity<>(
-                tripService.mapAllForFrontend(),
+                tripService.getAllPreview(),
                 HttpStatus.OK
         );
     }
