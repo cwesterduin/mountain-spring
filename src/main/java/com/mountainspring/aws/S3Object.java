@@ -28,6 +28,8 @@ public class S3Object {
     private String path;
     private String classification;
     private String region;
+    private String description;
+
 
     @Override
     public boolean equals(Object o) {

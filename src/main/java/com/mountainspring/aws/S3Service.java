@@ -153,26 +153,57 @@ public class S3Service {
 
                     // scale image to target width keep original ration
                     int targetHeight;
-                    int targetWidth = 800;
+                    int targetWidth = 1650;
+
+                    int targetThumbHeight;
+                    int targetThumbWidth = 150;
+
                     double originalHeight = image.getHeight();
                     double originalWidth = image.getWidth();
-                    double targetRatio = originalHeight / originalWidth;
-                    targetHeight = (int) (targetRatio * targetWidth);
+
+                    //image
+                    if (targetWidth < originalWidth) {
+                        double targetRatio = originalHeight / originalWidth;
+                        targetHeight = (int) (targetRatio * targetWidth);
+                    } else {
+                        targetHeight = (int) originalHeight;
+                    }
                     Image scaledImage = image.getScaledInstance(targetWidth, targetHeight, Image.SCALE_DEFAULT);
+
+                    //thumbnail
+                    double targetRatio = originalHeight / originalWidth;
+                    targetThumbHeight = (int) (targetRatio * targetThumbWidth);
+
+                    Image scaledThumbImage = image.getScaledInstance(targetThumbWidth, targetThumbHeight, Image.SCALE_DEFAULT);
+
 
                     //create a new image of size defined above
                     BufferedImage buffered = new BufferedImage(targetWidth, targetHeight, image.getType());
                     buffered.createGraphics().drawImage(scaledImage, 0, 0, null);
+
+                    //create a new thumbnail image of size defined above
+                    BufferedImage buffered2 = new BufferedImage(targetThumbWidth, targetThumbHeight, image.getType());
+                    buffered2.createGraphics().drawImage(scaledThumbImage, 0, 0, null);
 
                     //convert image data to s3 compatible format
                     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
                     ImageIO.write(buffered, "jpg", outputStream);
                     InputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
 
+                    ByteArrayOutputStream outputStream2 = new ByteArrayOutputStream();
+                    ImageIO.write(buffered2, "jpg", outputStream2);
+                    InputStream inputStream2 = new ByteArrayInputStream(outputStream2.toByteArray());
+
                     //upload the resized image to s3
                     ObjectMetadata metadata = new ObjectMetadata();
                     metadata.setContentType("jpg");
                     PutObjectResult s3Upload = s3.putObject(bucketName, multipartFile.getOriginalFilename(), inputStream, metadata);
+
+                    //upload the thumbnail image to s3
+                    ObjectMetadata metadataThumb = new ObjectMetadata();
+                    metadata.setContentType("jpg");
+                    PutObjectResult s3UploadThumb = s3.putObject(bucketName, multipartFile.getOriginalFilename().replaceFirst("images", "thumbnails"), inputStream2, metadataThumb);
+
 
                     //check if ref exists in db
                     if (s3ObjectRepository.existsS3ObjectByPathAndBucketName(multipartFile.getOriginalFilename(), bucketName)) {
