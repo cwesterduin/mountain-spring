@@ -1,6 +1,8 @@
 package com.mountainspring.trip;
 
+import com.mountainspring.event.Event;
 import com.mountainspring.event.EventFrontend;
+import com.mountainspring.event.EventRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,6 +15,9 @@ public class TripService {
 
     @Autowired
     private TripRepository tripRepository;
+
+    @Autowired
+    private EventRepository eventRepository;
 
     TripFrontend mapForFrontend(UUID id) {
         Trip trip = tripRepository.findById(id).orElse(null);
@@ -54,5 +59,14 @@ public class TripService {
 
     public List<TripProjection> getAllPreview() {
         return tripRepository.getAllPreview();
+    }
+
+    public void deleteOne(UUID id) {
+        if (tripRepository.findById(id).isPresent()) {
+            List<Event> eventsWithTrip = eventRepository.findAllByTripId(id);
+            eventsWithTrip.forEach(e -> e.setTrip(null));
+            eventRepository.saveAll(eventsWithTrip);
+            tripRepository.delete(tripRepository.findById(id).get());
+        }
     }
 }

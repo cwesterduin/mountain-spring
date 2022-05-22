@@ -44,4 +44,15 @@ public class TripController {
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteOne(@PathVariable UUID id) {
+        if (tripRepository.existsById(id)) {
+            tripService.deleteOne(id);
+            return new ResponseEntity<>(
+                    HttpStatus.ACCEPTED
+            );
+        }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+
 }

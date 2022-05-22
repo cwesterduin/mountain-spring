@@ -15,6 +15,9 @@ public class MapFeatureController {
     @Autowired
     private MapFeatureRepository mapFeatureRepository;
 
+    @Autowired
+    private MapFeatureService mapFeatureService;
+
     @GetMapping(value = "")
     public List<MapFeatureProjection> getAll() {
         return mapFeatureRepository.getAllPreview();
@@ -38,7 +41,7 @@ public class MapFeatureController {
 
     @DeleteMapping(value = "/{id}", consumes = "application/json")
     public void deleteOne(@PathVariable UUID id) {
-        mapFeatureRepository.deleteById(id);
+        mapFeatureService.deleteOne(id);
     }
 
 }

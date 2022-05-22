@@ -46,7 +46,7 @@ public class EventController {
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteOne(@PathVariable UUID id) {
         if (eventRepository.existsById(id)) {
-            eventRepository.deleteById(id);
+            eventService.deleteOne(id);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);

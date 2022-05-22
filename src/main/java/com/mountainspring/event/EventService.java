@@ -195,4 +195,14 @@ public class EventService {
             eventMediaRepository.save(eventMediaToSave);
         });
     }
+
+    public void deleteOne(UUID id) {
+        Optional<Event> myEvent = eventRepository.findById(id);
+        if (myEvent.isPresent()) {
+            List<EventMedia> eventMedia = eventMediaRepository.findAllByEventId(id);
+            eventMediaRepository.deleteAll(eventMedia);
+            eventRepository.deleteEventMapFeaturesByEventId(id);
+            eventRepository.delete(myEvent.get());
+        }
+    }
 }
