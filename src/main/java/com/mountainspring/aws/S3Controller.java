@@ -4,6 +4,7 @@ import com.amazonaws.services.s3.model.Bucket;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -47,6 +48,14 @@ public class S3Controller {
                              @RequestParam(value = "folders", required = false) MultipartFile[] folders)
             throws JsonProcessingException {
         s3Service.uploadS3Image(bucketName, files, folders);
+    }
+
+    @DeleteMapping("/{bucketName}")
+    public ResponseEntity<?> deleteS3File(
+            @PathVariable String bucketName,
+            @RequestBody List<String> pathList
+    ) {
+        return s3Service.deleteS3Object(bucketName, pathList);
     }
 
 }

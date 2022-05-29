@@ -1,6 +1,5 @@
 package com.mountainspring.event;
 
-import com.mountainspring.aws.S3Object;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 

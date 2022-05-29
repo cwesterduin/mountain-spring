@@ -23,4 +23,6 @@ public interface S3ObjectRepository extends JpaRepository<S3Object, UUID> {
 
 
     boolean existsS3ObjectByPathAndBucketName(String originalFilename, String bucketName);
+
+    S3Object findFirstByPathStartsWithAndClassification(String path, String classification);
 }

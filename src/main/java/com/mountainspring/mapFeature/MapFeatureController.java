@@ -39,7 +39,7 @@ public class MapFeatureController {
         mapFeatureRepository.save(mapFeature);
     }
 
-    @DeleteMapping(value = "/{id}", consumes = "application/json")
+    @DeleteMapping(value = "/{id}")
     public void deleteOne(@PathVariable UUID id) {
         mapFeatureService.deleteOne(id);
     }

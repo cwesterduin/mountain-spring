@@ -2,12 +2,12 @@ package com.mountainspring.aws;
 
 import lombok.*;
 import org.hibernate.Hibernate;
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
+import java.util.Date;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -24,11 +24,16 @@ public class S3Object {
     @Type(type = "org.hibernate.type.UUIDCharType")
     private UUID id;
 
+    @Column(nullable = false, updatable = false)
+    @CreationTimestamp
+    private Date createdDate;
+
     private String bucketName;
     private String path;
     private String classification;
     private String region;
     private String description;
+
 
 
     @Override
