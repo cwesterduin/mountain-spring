@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/s3")
@@ -48,6 +49,11 @@ public class S3Controller {
                              @RequestParam(value = "folders", required = false) MultipartFile[] folders)
             throws JsonProcessingException {
         s3Service.uploadS3Image(bucketName, files, folders);
+    }
+
+    @PostMapping("/description/{id}/{description}")
+    public void updateDescription(@PathVariable UUID id, @PathVariable String description) {
+        s3Service.updateDescription(id, description);
     }
 
     @DeleteMapping("/{bucketName}")

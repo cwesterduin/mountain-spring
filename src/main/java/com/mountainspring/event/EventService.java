@@ -54,6 +54,7 @@ public class EventService {
                     mediaFrontend.setPath(
                             "https://" + media.getMedia().getBucketName() + ".s3." + media.getMedia().getRegion() + ".amazonaws.com/" + media.getMedia().getPath()
                     );
+                    mediaFrontend.setDescription(media.getMedia().getDescription());
                     mediaFrontend.setSortOrder(media.getSortOrder());
                     mediaFrontend.setId(media.getId());
                     mediaFrontend.setMediaId(media.getMedia().getId());

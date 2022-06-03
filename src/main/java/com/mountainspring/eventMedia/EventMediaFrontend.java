@@ -10,6 +10,7 @@ public class EventMediaFrontend {
     private UUID id;
     private UUID mediaId;
     private String path;
+    private String description;
     private int sortOrder;
 
 }

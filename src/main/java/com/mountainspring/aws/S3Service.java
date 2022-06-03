@@ -376,14 +376,25 @@ public class S3Service {
                 };
             }
         }
-        logger.info("deleting folders");
-        s3ObjectRepository.deleteAll(s3ObjectsFoldersToDelete);
+        if (!s3ObjectsFoldersToDelete.isEmpty()) {
+            logger.info("deleting folders");
+            s3ObjectRepository.deleteAll(s3ObjectsFoldersToDelete);
+        }
+        HashMap<String,String> successMap = new HashMap<>();
+        successMap.put("message", "deleted s3Object in database and s3");
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body("deleted s3Object in database and s3");
+                .body(successMap);
 
 
     }
 
 
+    public void updateDescription(UUID id, String description) {
+        Optional<S3Object> s3ObjectToUpdate = s3ObjectRepository.findById(id);
+        s3ObjectToUpdate.ifPresent(s3Object -> {
+            s3Object.setDescription(description);
+            s3ObjectRepository.save(s3Object);
+        });
+    }
 }
