@@ -27,6 +27,11 @@ public class EventController {
         return eventService.getAllFrontendPreview();
     }
 
+    @GetMapping("frontend")
+    public List<EventFrontendProjection> getAllFrontend() {
+        return eventService.getAllFrontend();
+    }
+
     @PostMapping(value = "", consumes = "application/json")
     public void saveNew(@RequestBody EventFrontend event) {
         eventService.createOrUpdate(event);

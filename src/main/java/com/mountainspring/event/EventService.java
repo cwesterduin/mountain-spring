@@ -149,6 +149,11 @@ public class EventService {
         return eventRepository.getAllPreview();
     }
 
+    public List<EventFrontendProjection> getAllFrontend() {
+        return eventRepository.getAllFrontend();
+    }
+
+
     public void createOrUpdate(EventFrontend event) {
         Event eventToSave = new Event();
 

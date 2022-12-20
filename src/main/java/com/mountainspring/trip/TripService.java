@@ -3,10 +3,13 @@ package com.mountainspring.trip;
 import com.mountainspring.event.Event;
 import com.mountainspring.event.EventFrontend;
 import com.mountainspring.event.EventRepository;
+import com.mountainspring.models.Point;
+import net.bytebuddy.matcher.FilterableList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -35,10 +38,19 @@ public class TripService {
             if (trip.getEvents() != null) {
                 List<EventFrontend> frontEndEvents = new ArrayList<>();
                 trip.getEvents().forEach(e -> {
+
+                        List<Point> coordinates = null;
+                        if (e.getCoordinates() != null) {
+                            coordinates = Collections.singletonList(e.getCoordinates().get(0));
+                        }
+
                         EventFrontend eventFrontend = new EventFrontend();
                         eventFrontend.setId(e.getId());
                         eventFrontend.setName(e.getName());
                         eventFrontend.setDate(e.getDate());
+                        eventFrontend.setDistance(e.getDistance());
+                        eventFrontend.setElevation(e.getElevation());
+                        eventFrontend.setCoordinates(coordinates);
                         frontEndEvents.add(eventFrontend);
                         }
                 );

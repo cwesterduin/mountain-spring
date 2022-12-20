@@ -28,6 +28,14 @@ public class TripController {
         );
     }
 
+    @GetMapping("/frontend")
+    public ResponseEntity<?> getAllFrontend() {
+        return new ResponseEntity<>(
+                tripRepository.findAll(),
+                HttpStatus.OK
+        );
+    }
+
     @PostMapping(value = "", consumes = "application/json")
     public void saveNew(@RequestBody Trip trip) {
         tripRepository.save(trip);
