@@ -23,6 +23,11 @@ public class MapFeatureController {
         return mapFeatureRepository.getAllPreview();
     }
 
+    @GetMapping(value = "/frontend")
+    public List<MapFeature> getAllFrontend() {
+        return mapFeatureRepository.findAll();
+    }
+
     @GetMapping(value = "/{id}")
     public ResponseEntity<?> getOne(@PathVariable UUID id) {
         if (mapFeatureRepository.existsById(id)) {
