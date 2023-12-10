@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -24,8 +25,8 @@ public class MapFeatureController {
     }
 
     @GetMapping(value = "/frontend")
-    public List<MapFeature> getAllFrontend() {
-        return mapFeatureRepository.findAll();
+    public List<Map<String, Object>> getAllFrontend() {
+        return mapFeatureRepository.findAllDetailed();
     }
 
     @GetMapping(value = "/{id}")
