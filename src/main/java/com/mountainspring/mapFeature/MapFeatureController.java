@@ -11,6 +11,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/map-features")
+@CrossOrigin
 public class MapFeatureController {
 
     @Autowired

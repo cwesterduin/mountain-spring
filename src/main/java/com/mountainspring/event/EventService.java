@@ -58,6 +58,7 @@ public class EventService {
                     mediaFrontend.setSortOrder(media.getSortOrder());
                     mediaFrontend.setId(media.getId());
                     mediaFrontend.setMediaId(media.getMedia().getId());
+                    mediaFrontend.setFileType(media.getMedia().getFileType());
                     mediaFrontendList.add(mediaFrontend);
                 });
                 eventFrontend.setMedia(mediaFrontendList);

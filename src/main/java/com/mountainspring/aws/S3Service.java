@@ -2,6 +2,11 @@ package com.mountainspring.aws;
 
 import com.amazonaws.SdkClientException;
 import com.amazonaws.services.s3.model.*;
+import com.drew.imaging.ImageMetadataReader;
+import com.drew.imaging.ImageProcessingException;
+import com.drew.metadata.Metadata;
+import com.drew.metadata.MetadataException;
+import com.drew.metadata.exif.ExifIFD0Directory;
 import com.mountainspring.eventMedia.EventMedia;
 import com.mountainspring.eventMedia.EventMediaRepository;
 import com.mountainspring.mapFeature.MapFeature;
@@ -21,7 +26,10 @@ import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
+import javax.imageio.metadata.IIOMetadata;
 import java.awt.*;
+import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.http.HttpResponse;
@@ -33,6 +41,24 @@ import java.util.stream.Collectors;
 public class S3Service {
 
     Logger logger = LoggerFactory.getLogger(S3Service.class);
+
+    final static Set<String> IMAGE_CONTENT_TYPES = new HashSet<>();
+    final static Set<String> VIDEO_CONTENT_TYPES = new HashSet<>();
+
+    static {
+        // Add common image MIME types
+        IMAGE_CONTENT_TYPES.add("image/jpeg");
+        IMAGE_CONTENT_TYPES.add("image/png");
+        IMAGE_CONTENT_TYPES.add("image/gif");
+        IMAGE_CONTENT_TYPES.add("image/bmp");
+        IMAGE_CONTENT_TYPES.add("image/webp");
+
+        VIDEO_CONTENT_TYPES.add("video/mp4");
+        VIDEO_CONTENT_TYPES.add("video/mpeg");
+        VIDEO_CONTENT_TYPES.add("video/quicktime");
+        VIDEO_CONTENT_TYPES.add("video/x-msvideo");
+        VIDEO_CONTENT_TYPES.add("video/x-flv");
+    }
 
 
     @Autowired
@@ -157,88 +183,130 @@ public class S3Service {
         return objectSummaries;
     }
 
-    public void uploadS3Image(String bucketName, MultipartFile[] files, MultipartFile[] folders) {
+    public void uploadS3Image(String bucketName, MultipartFile[] files, MultipartFile[] folders) throws ImageProcessingException, MetadataException {
 
         List<S3Object> s3ObjectsToSave = new ArrayList<>();
 
         try {
             if (files != null) {
                 for (MultipartFile multipartFile : files) {
+
                     System.out.println(multipartFile.getContentType());
 
-                    BufferedImage image = ImageIO.read(multipartFile.getInputStream());
+
+                    if (IMAGE_CONTENT_TYPES.contains(multipartFile.getContentType())) {
 
 
-                    // scale image to target width keep original ration
-                    int targetHeight;
-                    int targetWidth = 1650;
+                        BufferedImage image = ImageIO.read(multipartFile.getInputStream());
 
-                    int targetThumbHeight;
-                    int targetThumbWidth = 150;
 
-                    double originalHeight = image.getHeight();
-                    double originalWidth = image.getWidth();
+                        // Read metadata from the image file
+                        Metadata originalMetadata = ImageMetadataReader.readMetadata(multipartFile.getInputStream());
 
-                    //image
-                    if (targetWidth < originalWidth) {
-                        double targetRatio = originalHeight / originalWidth;
-                        targetHeight = (int) (targetRatio * targetWidth);
-                    } else {
-                        targetHeight = (int) originalHeight;
+                        // Extract the orientation information
+                        int orientation = getOrientation(originalMetadata);
+                        image = rotateImage(image, orientation);
+
+                        int original_width = image.getWidth();
+                        int original_height = image.getHeight();
+                        int bound_width = 1650;
+                        int bound_width_thumb = 150;
+                        int new_width = original_width;
+                        int new_height = original_height;
+                        int new_width_thumb = original_width;
+                        int new_height_thumb = original_height;
+
+                        // first check if we need to scale width
+                        if (original_width > bound_width) {
+                            //scale width to fit
+                            new_width = bound_width;
+                            //scale height to maintain aspect ratio
+                            new_height = (new_width * original_height) / original_width;
+                        }
+
+                        // first check if we need to scale width
+                        if (original_width > bound_width_thumb) {
+                            //scale width to fit
+                            new_width_thumb = bound_width_thumb;
+                            //scale height to maintain aspect ratio
+                            new_height_thumb = (new_width_thumb * original_height) / original_width;
+                        }
+
+                        BufferedImage scaledImage = new BufferedImage(new_width, new_height, BufferedImage.TYPE_INT_RGB);
+                        Graphics2D g = scaledImage.createGraphics();
+                        g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+                        g.drawImage(image, 0, 0, new_width, new_height, null);
+                        g.dispose();
+
+                        BufferedImage scaledThumbImage = new BufferedImage(new_width_thumb, new_height_thumb, BufferedImage.TYPE_INT_RGB);
+                        Graphics2D gThumb = scaledThumbImage.createGraphics();
+                        gThumb.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+                        gThumb.drawImage(image, 0, 0, new_width_thumb, new_height_thumb, null);
+                        gThumb.dispose();
+
+                        //convert image data to s3 compatible format
+                        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                        ImageIO.write(scaledImage, FilenameUtils.getExtension(multipartFile.getOriginalFilename()), outputStream);
+                        InputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
+
+                        ByteArrayOutputStream outputStream2 = new ByteArrayOutputStream();
+                        ImageIO.write(scaledThumbImage, FilenameUtils.getExtension(multipartFile.getOriginalFilename()), outputStream2);
+                        InputStream inputStream2 = new ByteArrayInputStream(outputStream2.toByteArray());
+
+                        String newFileName = FilenameUtils.getFullPath(multipartFile.getOriginalFilename()) + FilenameUtils.getBaseName(multipartFile.getOriginalFilename()) + ".jpg";
+                        String newThumbName = FilenameUtils.getFullPath(multipartFile.getOriginalFilename()).replaceFirst("images", "thumbnails") + FilenameUtils.getBaseName(multipartFile.getOriginalFilename()) + ".jpg";
+
+
+                        //upload the resized image to s3
+                        ObjectMetadata metadata = new ObjectMetadata();
+                        metadata.setContentType("image/jpeg");
+                        PutObjectResult s3Upload = s3.putObject(bucketName, newFileName, inputStream, metadata);
+
+                        //upload the thumbnail image to s3
+                        ObjectMetadata metadataThumb = new ObjectMetadata();
+                        metadataThumb.setContentType("image/jpeg");
+                        PutObjectResult s3UploadThumb = s3.putObject(bucketName, newThumbName, inputStream2, metadataThumb);
+
+                        //check if ref exists in db
+                        if (s3ObjectRepository.existsS3ObjectByPathAndBucketName(newFileName, bucketName)) {
+                            break;
+                        }
+
+                        //add to list of s3 database entities
+                        S3Object s3ObjectToAdd = new S3Object();
+                        s3ObjectToAdd.setBucketName(bucketName);
+                        s3ObjectToAdd.setPath(newFileName);
+                        s3ObjectToAdd.setClassification("file");
+                        s3ObjectToAdd.setFileType("image");
+                        s3ObjectToAdd.setRegion(s3.getRegionName());
+                        s3ObjectsToSave.add(s3ObjectToAdd);
+
+                    } else if (VIDEO_CONTENT_TYPES.contains(multipartFile.getContentType())) {
+
+                        InputStream videoInputStream = multipartFile.getInputStream();
+                        String newFileName = FilenameUtils.getFullPath(multipartFile.getOriginalFilename()) + FilenameUtils.getBaseName(multipartFile.getOriginalFilename()) + ".mp4";
+
+                        //upload the video to s3
+                        ObjectMetadata metadata = new ObjectMetadata();
+                        metadata.setContentType("video/mp4");
+                        PutObjectResult s3Upload = s3.putObject(bucketName, newFileName, videoInputStream, metadata);
+
+                        //check if ref exists in db
+                        if (s3ObjectRepository.existsS3ObjectByPathAndBucketName(newFileName, bucketName)) {
+                            break;
+                        }
+
+                        //add to list of s3 database entities
+                        S3Object s3ObjectToAdd = new S3Object();
+                        s3ObjectToAdd.setBucketName(bucketName);
+                        s3ObjectToAdd.setPath(newFileName);
+                        s3ObjectToAdd.setClassification("file");
+                        s3ObjectToAdd.setFileType("video");
+                        s3ObjectToAdd.setRegion(s3.getRegionName());
+                        s3ObjectsToSave.add(s3ObjectToAdd);
+
+
                     }
-                    Image scaledImage = image.getScaledInstance(targetWidth, targetHeight, Image.SCALE_DEFAULT);
-
-                    //thumbnail
-                    double targetRatio = originalHeight / originalWidth;
-                    targetThumbHeight = (int) (targetRatio * targetThumbWidth);
-
-                    Image scaledThumbImage = image.getScaledInstance(targetThumbWidth, targetThumbHeight, Image.SCALE_DEFAULT);
-
-
-                    //create a new image of size defined above
-                    BufferedImage buffered = new BufferedImage(targetWidth, targetHeight, image.getType());
-                    buffered.createGraphics().drawImage(scaledImage, 0, 0, null);
-
-                    //create a new thumbnail image of size defined above
-                    BufferedImage buffered2 = new BufferedImage(targetThumbWidth, targetThumbHeight, image.getType());
-                    buffered2.createGraphics().drawImage(scaledThumbImage, 0, 0, null);
-
-                    //convert image data to s3 compatible format
-                    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-                    ImageIO.write(buffered, FilenameUtils.getExtension(multipartFile.getOriginalFilename()), outputStream);
-                    InputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
-
-                    ByteArrayOutputStream outputStream2 = new ByteArrayOutputStream();
-                    ImageIO.write(buffered2, FilenameUtils.getExtension(multipartFile.getOriginalFilename()), outputStream2);
-                    InputStream inputStream2 = new ByteArrayInputStream(outputStream2.toByteArray());
-
-                    String newFileName = FilenameUtils.getFullPath(multipartFile.getOriginalFilename()) + FilenameUtils.getBaseName(multipartFile.getOriginalFilename()) + ".jpg";
-                    String newThumbName = FilenameUtils.getFullPath(multipartFile.getOriginalFilename()).replaceFirst("images", "thumbnails") + FilenameUtils.getBaseName(multipartFile.getOriginalFilename()) + ".jpg";
-
-
-                    //upload the resized image to s3
-                    ObjectMetadata metadata = new ObjectMetadata();
-                    metadata.setContentType("image/jpeg");
-                    PutObjectResult s3Upload = s3.putObject(bucketName, newFileName, inputStream, metadata);
-
-                    //upload the thumbnail image to s3
-                    ObjectMetadata metadataThumb = new ObjectMetadata();
-                    metadataThumb.setContentType("image/jpeg");
-                    PutObjectResult s3UploadThumb = s3.putObject(bucketName, newThumbName, inputStream2, metadataThumb);
-
-
-                    //check if ref exists in db
-                    if (s3ObjectRepository.existsS3ObjectByPathAndBucketName(newFileName, bucketName)) {
-                        break;
-                    }
-
-                    //add to list of s3 database entities
-                    S3Object s3ObjectToAdd = new S3Object();
-                    s3ObjectToAdd.setBucketName(bucketName);
-                    s3ObjectToAdd.setPath(newFileName);
-                    s3ObjectToAdd.setClassification("file");
-                    s3ObjectToAdd.setRegion(s3.getRegionName());
-                    s3ObjectsToSave.add(s3ObjectToAdd);
                 }
             }
 
@@ -329,9 +397,9 @@ public class S3Service {
                 errorMap.get(s3Object.getPath()).put("map-features", new ArrayList<>());
 
                 List<EventMedia> eventMediaList = eventMediaRepository.findByMedia(s3Object);
-                    for (EventMedia eventMedia : eventMediaList) {
-                        errorMap.get(s3Object.getPath()).get("events").add(eventMedia.getEvent().getName());
-                    }
+                for (EventMedia eventMedia : eventMediaList) {
+                    errorMap.get(s3Object.getPath()).get("events").add(eventMedia.getEvent().getName());
+                }
 
                 List<Trip> tripMediaList = tripRepository.findByPrimaryImage(s3Object);
                 for (Trip trip : tripMediaList) {
@@ -380,7 +448,7 @@ public class S3Service {
             logger.info("deleting folders");
             s3ObjectRepository.deleteAll(s3ObjectsFoldersToDelete);
         }
-        HashMap<String,String> successMap = new HashMap<>();
+        HashMap<String, String> successMap = new HashMap<>();
         successMap.put("message", "deleted s3Object in database and s3");
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -397,4 +465,52 @@ public class S3Service {
             s3ObjectRepository.save(s3Object);
         });
     }
+
+    private static int getOrientation(Metadata metadata) throws MetadataException {
+        ExifIFD0Directory exifIFD0Directory = metadata.getFirstDirectoryOfType(ExifIFD0Directory.class);
+        if (exifIFD0Directory != null && exifIFD0Directory.containsTag(ExifIFD0Directory.TAG_ORIENTATION)) {
+            return exifIFD0Directory.getInt(ExifIFD0Directory.TAG_ORIENTATION);
+        }
+        return 1;
+    }
+
+    public static BufferedImage rotateImage(BufferedImage originalImage, int orientation) {
+        switch (orientation) {
+            case 6:
+                return rotateClockwise(originalImage, 90);
+            case 3:
+                return rotateClockwise(originalImage, 180);
+            case 8:
+                return rotateClockwise(originalImage, 270);
+            default:
+                return originalImage;
+        }
+    }
+
+    private static BufferedImage rotateClockwise(BufferedImage originalImage, int degrees) {
+        double radians = Math.toRadians(degrees);
+        int width = originalImage.getWidth();
+        int height = originalImage.getHeight();
+        int newWidth = width;
+        int newHeight = height;
+
+        if (degrees == 90 || degrees == 270) {
+            newWidth = height;
+            newHeight = width;
+        }
+
+        BufferedImage rotatedImage = new BufferedImage(newWidth, newHeight, originalImage.getType());
+        Graphics2D g = rotatedImage.createGraphics();
+        g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        AffineTransform at = new AffineTransform();
+        at.translate(newWidth / 2, newHeight / 2);
+        at.rotate(radians);
+        at.translate(-width / 2, -height / 2);
+        g.drawImage(originalImage, at, null);
+        g.dispose();
+
+        return rotatedImage;
+    }
+
+
 }
