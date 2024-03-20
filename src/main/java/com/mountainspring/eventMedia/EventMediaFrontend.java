@@ -12,5 +12,6 @@ public class EventMediaFrontend {
     private String path;
     private String description;
     private int sortOrder;
+    private String fileType;
 
 }
