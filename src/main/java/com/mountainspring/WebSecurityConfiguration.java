@@ -35,6 +35,12 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .jwt();
     }
 
+
+    @Override
+    public void configure(WebSecurity web) throws Exception {
+        web.ignoring().antMatchers(String.valueOf(HttpMethod.GET), "/**");
+    }
+
     @Bean
     @Order(Ordered.HIGHEST_PRECEDENCE)
     CorsConfigurationSource corsConfigurationSource() {
