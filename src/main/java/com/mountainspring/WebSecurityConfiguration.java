@@ -1,10 +1,10 @@
 package com.mountainspring;
 
-import com.amazonaws.services.appmesh.model.HttpMethod;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -28,6 +28,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
         http.csrf().disable()
                 .antMatcher("/**")
                 .authorizeRequests()
+                .antMatchers(HttpMethod.GET, "/**").permitAll()
                 .anyRequest()
                 .authenticated()
                 .and()
@@ -36,10 +37,6 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
     }
 
 
-    @Override
-    public void configure(WebSecurity web) throws Exception {
-        web.ignoring().antMatchers(String.valueOf(HttpMethod.GET), "/**");
-    }
 
     @Bean
     @Order(Ordered.HIGHEST_PRECEDENCE)

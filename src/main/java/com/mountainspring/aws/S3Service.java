@@ -1,6 +1,9 @@
 package com.mountainspring.aws;
 
 import com.amazonaws.SdkClientException;
+import com.amazonaws.services.codepipeline.AWSCodePipeline;
+import com.amazonaws.services.codepipeline.AWSCodePipelineClientBuilder;
+import com.amazonaws.services.codepipeline.model.StartPipelineExecutionRequest;
 import com.amazonaws.services.s3.model.*;
 import com.drew.imaging.ImageMetadataReader;
 import com.drew.imaging.ImageProcessingException;
@@ -26,13 +29,10 @@ import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.imageio.ImageIO;
-import javax.imageio.ImageReader;
-import javax.imageio.metadata.IIOMetadata;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.io.*;
-import java.net.http.HttpResponse;
 import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -93,33 +93,6 @@ public class S3Service {
         });
         return returnObjects;
     }
-
-//    public List<Folder> listBucketFolders(String bucketName) throws JsonProcessingException {
-//
-//        List<S3ObjectSummary> resultSummaries = getS3ObjectSummaries(bucketName);
-//
-//        List<Folder> resFolders = new ArrayList<>();
-//
-//        resultSummaries.forEach(r -> {
-//            String[] splitStrings = r.getKey().split("(?<=/)");
-//            StringBuilder folder = new StringBuilder();
-//            for (String splitString : splitStrings) {
-//                    folder.append(splitString);
-//            }
-//            List<String> folderStringList = List.of(String.valueOf(folder).split("/"));
-//            Folder folderToAdd = new Folder(folderStringList.size(), folderStringList.get(folderStringList.size() - 1), folderStringList);
-//            if (!resFolders.contains(folderToAdd)) {
-//                resFolders.add(folderToAdd);
-//            }
-//
-//        });
-//
-//        resFolders.sort(Comparator.comparing(Folder::getDepth));
-//
-//        return resFolders;
-//
-//    }
-
 
     public List<String> listBucketFolders(String bucketName) {
         return s3ObjectRepository.findAllByClassificationAndBucketName("folder", bucketName)
@@ -510,6 +483,16 @@ public class S3Service {
         g.dispose();
 
         return rotatedImage;
+    }
+
+    public void triggerBuild(String projectName){
+        AWSCodePipeline awsCodePipelineClient = AWSCodePipelineClientBuilder.standard().build();
+
+        StartPipelineExecutionRequest request = new StartPipelineExecutionRequest()
+                .withName(projectName);
+
+        // Trigger pipeline execution
+        awsCodePipelineClient.startPipelineExecution(request);
     }
 
 
