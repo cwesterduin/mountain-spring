@@ -487,7 +487,10 @@ public class S3Service {
     }
 
     public ResponseEntity<?> triggerBuild(String projectName) {
-        AWSCodePipeline awsCodePipelineClient = AWSCodePipelineClientBuilder.standard().build();
+        AWSCodePipeline awsCodePipelineClient = AWSCodePipelineClientBuilder
+                .standard()
+                .withRegion(Regions.EU_WEST_2)
+                .build();
         if (isPipelineInProgress(projectName, awsCodePipelineClient)) {
             return ResponseEntity
                     .status(HttpStatus.SERVICE_UNAVAILABLE)
