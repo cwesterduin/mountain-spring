@@ -67,11 +67,11 @@ public class S3Controller {
         return s3Service.deleteS3Object(bucketName, pathList);
     }
 
-    @PutMapping("/codebuild/{projectName}")
-    public void triggerBuild(
+    @PostMapping("/codebuild/{projectName}")
+    public ResponseEntity<?> triggerBuild(
             @PathVariable String projectName
     ) {
-        s3Service.triggerBuild(projectName);
+        return s3Service.triggerBuild(projectName);
     }
 
 }

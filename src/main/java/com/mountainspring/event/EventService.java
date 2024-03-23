@@ -208,7 +208,9 @@ public class EventService {
         if (myEvent.isPresent()) {
             List<EventMedia> eventMedia = eventMediaRepository.findAllByEventId(id);
             eventMediaRepository.deleteAll(eventMedia);
-            eventRepository.deleteEventMapFeaturesByEventId(id);
+            if (!myEvent.get().getMapFeatures().isEmpty() && myEvent.get().getMapFeatures() == null) {
+                eventRepository.deleteEventMapFeaturesByEventId(id);
+            }
             eventRepository.delete(myEvent.get());
         }
     }

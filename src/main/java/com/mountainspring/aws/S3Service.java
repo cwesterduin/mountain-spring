@@ -3,7 +3,7 @@ package com.mountainspring.aws;
 import com.amazonaws.SdkClientException;
 import com.amazonaws.services.codepipeline.AWSCodePipeline;
 import com.amazonaws.services.codepipeline.AWSCodePipelineClientBuilder;
-import com.amazonaws.services.codepipeline.model.StartPipelineExecutionRequest;
+import com.amazonaws.services.codepipeline.model.*;
 import com.amazonaws.services.s3.model.*;
 import com.drew.imaging.ImageMetadataReader;
 import com.drew.imaging.ImageProcessingException;
@@ -414,7 +414,8 @@ public class S3Service {
                             String.join("", strings.subList(0, i))
                     );
                     s3ObjectsFoldersToDelete.add(s3o);
-                };
+                }
+                ;
             }
         }
         if (!s3ObjectsFoldersToDelete.isEmpty()) {
@@ -485,14 +486,32 @@ public class S3Service {
         return rotatedImage;
     }
 
-    public void triggerBuild(String projectName){
+    public ResponseEntity<?> triggerBuild(String projectName) {
         AWSCodePipeline awsCodePipelineClient = AWSCodePipelineClientBuilder.standard().build();
-
+        if (isPipelineInProgress(projectName, awsCodePipelineClient)) {
+            return ResponseEntity
+                    .status(HttpStatus.SERVICE_UNAVAILABLE)
+                    .body("Build pipeline currently in progress");
+        }
         StartPipelineExecutionRequest request = new StartPipelineExecutionRequest()
                 .withName(projectName);
-
-        // Trigger pipeline execution
         awsCodePipelineClient.startPipelineExecution(request);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(Map.of("message", "Triggered build pipeline"));
+    }
+
+    private boolean isPipelineInProgress(String pipelineName, AWSCodePipeline awsCodePipeline) {
+        GetPipelineStateResult pipelineStateResult = awsCodePipeline.getPipelineState(
+                new GetPipelineStateRequest().withName(pipelineName)
+        );
+        for (StageState stageState : pipelineStateResult.getStageStates()) {
+            StageExecution execution = stageState.getLatestExecution();
+            if (execution.getStatus().equals("InProgress")) {
+                return true;
+            }
+        }
+        return false;
     }
 
 
