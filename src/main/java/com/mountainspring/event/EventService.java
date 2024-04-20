@@ -58,6 +58,7 @@ public class EventService {
                     mediaFrontend.setSortOrder(media.getSortOrder());
                     mediaFrontend.setId(media.getId());
                     mediaFrontend.setMediaId(media.getMedia().getId());
+                    mediaFrontend.setFileType(media.getMedia().getFileType());
                     mediaFrontendList.add(mediaFrontend);
                 });
                 eventFrontend.setMedia(mediaFrontendList);
@@ -207,7 +208,9 @@ public class EventService {
         if (myEvent.isPresent()) {
             List<EventMedia> eventMedia = eventMediaRepository.findAllByEventId(id);
             eventMediaRepository.deleteAll(eventMedia);
-            eventRepository.deleteEventMapFeaturesByEventId(id);
+            if (!myEvent.get().getMapFeatures().isEmpty() && myEvent.get().getMapFeatures() == null) {
+                eventRepository.deleteEventMapFeaturesByEventId(id);
+            }
             eventRepository.delete(myEvent.get());
         }
     }

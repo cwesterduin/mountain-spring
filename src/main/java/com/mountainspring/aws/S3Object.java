@@ -33,8 +33,7 @@ public class S3Object {
     private String classification;
     private String region;
     private String description;
-
-
+    private String fileType;
 
     @Override
     public boolean equals(Object o) {

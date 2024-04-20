@@ -2,6 +2,8 @@ package com.mountainspring.aws;
 
 import com.amazonaws.services.s3.model.Bucket;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
+import com.drew.imaging.ImageProcessingException;
+import com.drew.metadata.MetadataException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +15,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/s3")
+@CrossOrigin
 public class S3Controller {
 
     @Autowired
@@ -47,7 +50,7 @@ public class S3Controller {
     public void uploadS3File(@PathVariable String bucketName,
                              @RequestParam(value = "files", required = false) MultipartFile[] files,
                              @RequestParam(value = "folders", required = false) MultipartFile[] folders)
-            throws JsonProcessingException {
+            throws JsonProcessingException, ImageProcessingException, MetadataException {
         s3Service.uploadS3Image(bucketName, files, folders);
     }
 
@@ -62,6 +65,13 @@ public class S3Controller {
             @RequestBody List<String> pathList
     ) {
         return s3Service.deleteS3Object(bucketName, pathList);
+    }
+
+    @PostMapping("/codebuild/{projectName}")
+    public ResponseEntity<?> triggerBuild(
+            @PathVariable String projectName
+    ) {
+        return s3Service.triggerBuild(projectName);
     }
 
 }
