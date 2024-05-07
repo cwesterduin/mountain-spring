@@ -1,7 +1,6 @@
 package com.mountainspring.trip;
 
 import com.mountainspring.aws.S3Object;
-import com.mountainspring.event.EventProjection;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
