@@ -12,13 +12,13 @@ public interface EventRepository extends JpaRepository<Event, UUID> {
     List<EventProjection> getAllPreview();
 
     @Query(value = "SELECT\n" +
-            "    e.id AS id,\n" +
+            "    CAST(e.id AS text) AS id,\n" +
             "    e.name AS name,\n" +
-            "    e.date AS date,\n" +
-            "    e.description_id AS descriptionId,\n" +
-            "    IF(e.coordinates IS NULL, 'false', 'true') AS coordinates,\n" +
-            "    IF(s3o.file_type = 'video', NULL,\n" +
-            "       CONCAT('https://', s3o.bucket_name, '.s3.', s3o.region, '.amazonaws.com/', s3o.path)) AS path\n" +
+            "   e.date AS date,\n" +
+            "    CAST(e.description_id AS text) AS descriptionId,\n" +
+            "    CASE WHEN e.coordinates IS NULL THEN 'false' ELSE 'true' END AS coordinates,\n" +
+            "    CASE WHEN s3o.file_type = 'video' THEN NULL\n" +
+            "         ELSE CONCAT('https://', s3o.bucket_name, '.s3.', s3o.region, '.amazonaws.com/', s3o.path) END AS path\n" +
             "FROM\n" +
             "    event e\n" +
             "        LEFT JOIN (\n" +

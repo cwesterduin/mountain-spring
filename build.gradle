@@ -39,7 +39,7 @@ dependencies {
     implementation 'org.projectlombok:lombok'
     implementation 'commons-io:commons-io:2.11.0'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
-    implementation 'mysql:mysql-connector-java:8.0.29'
+    implementation 'org.postgresql:postgresql:42.7.3'
     implementation 'com.drewnoakes:metadata-extractor:2.19.0'
 
     annotationProcessor 'org.projectlombok:lombok'

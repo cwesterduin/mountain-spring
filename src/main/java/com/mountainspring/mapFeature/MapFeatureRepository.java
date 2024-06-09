@@ -16,25 +16,21 @@ public interface MapFeatureRepository extends JpaRepository<MapFeature, UUID> {
     @Query(value = "SELECT\n" +
             "    mf.*,\n" +
             "    so.id AS image_id, so.path, so.description,\n" +
-            "    JSON_ARRAYAGG(\n" +
-            "            JSON_OBJECT(\n" +
-            "                    'id', e.id,\n" +
-            "                    'name', e.name,\n" +
-            "                    'trip_id', e.trip_id,\n" +
-            "                    'trip_name', t.name,\n" +
-            "                    'date', e.date\n" +
-            "                )\n" +
-            "        ) AS events\n" +
+            "    jsonb_agg(\n" +
+            "        jsonb_build_object(\n" +
+            "            'id', CAST(e.id AS text),\n" +
+            "            'name', e.name,\n" +
+            "            'trip_id', CAST(e.trip_id AS text),\n" +
+            "            'trip_name', t.name,\n" +
+            "            'date', CAST(e.date AS text)\n" +
+            "        )\n" +
+            "    ) AS events\n" +
             "FROM\n" +
             "    map_feature mf\n" +
-            "        LEFT JOIN\n" +
-            "    event_map_features emf ON mf.id = emf.map_features_id\n" +
-            "        LEFT JOIN\n" +
-            "    event e ON emf.event_id = e.id\n" +
-            "        LEFT JOIN\n" +
-            "    s3object so ON mf.primary_image_id = so.id\n" +
-            "        LEFT JOIN\n" +
-            "    trip t ON e.trip_id = t.id\n" +
+            "    LEFT JOIN event_map_features emf ON mf.id = emf.map_features_id\n" +
+            "    LEFT JOIN event e ON emf.event_id = e.id\n" +
+            "    LEFT JOIN s3object so ON mf.primary_image_id = so.id\n" +
+            "    LEFT JOIN trip t ON e.trip_id = t.id\n" +
             "GROUP BY\n" +
             "    mf.id, mf.name, so.id, so.path, so.description;", nativeQuery = true)
     List<Map<String, Object>> findAllDetailed();
