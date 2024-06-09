@@ -4,7 +4,6 @@ import com.mountainspring.event.Event;
 import com.mountainspring.event.EventFrontend;
 import com.mountainspring.event.EventRepository;
 import com.mountainspring.models.Point;
-import net.bytebuddy.matcher.FilterableList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
