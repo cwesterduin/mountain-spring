@@ -8,6 +8,7 @@ import com.mountainspring.eventMedia.EventMediaRepository;
 import com.mountainspring.trip.Trip;
 import com.mountainspring.trip.TripFrontend;
 import com.mountainspring.trip.TripRepository;
+import com.mountainspring.vector.EventVectorService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +25,8 @@ public class EventService {
     private S3ObjectRepository s3ObjectRepository;
 
     private TripRepository tripRepository;
+
+    private EventVectorService eventVectorService;
 
     EventFrontend mapForFrontend(UUID id) {
         Event event = eventRepository.findById(id).orElse(null);
@@ -122,6 +125,10 @@ public class EventService {
         }
 
         Event savedEvent = eventRepository.save(eventToSave);
+        eventVectorService.getEmbeddingAndCreate(
+                savedEvent.getId().toString(),
+                event.getDescriptionId() + " " + event.getDescription()
+        );
 
 
         if (event.getMedia() != null && !event.getMedia().isEmpty()) {
