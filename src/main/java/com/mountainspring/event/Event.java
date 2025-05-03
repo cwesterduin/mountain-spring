@@ -5,7 +5,6 @@ import com.mountainspring.eventMedia.EventMedia;
 import com.mountainspring.mapFeature.MapFeature;
 import com.mountainspring.models.Point;
 import com.mountainspring.trip.Trip;
-import com.mountainspring.vector.EventVector;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -66,12 +65,6 @@ public class Event {
     @JsonIdentityInfo(generator= ObjectIdGenerators.PropertyGenerator.class, property="id",  scope = Trip.class)
     @JsonIdentityReference(alwaysAsId = true)
     private Trip trip;
-
-    @OneToMany(mappedBy = "event")
-    @ToString.Exclude
-    @JsonIgnore
-    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class , property = "id")
-    private List<EventVector> eventVectors = new ArrayList<>();
 
     @Override
     public boolean equals(Object o) {
