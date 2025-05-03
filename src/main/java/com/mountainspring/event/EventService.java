@@ -25,6 +25,7 @@ public class EventService {
 
     private TripRepository tripRepository;
 
+
     EventFrontend mapForFrontend(UUID id) {
         Event event = eventRepository.findById(id).orElse(null);
         EventFrontend eventFrontend = new EventFrontend();
@@ -122,7 +123,6 @@ public class EventService {
         }
 
         Event savedEvent = eventRepository.save(eventToSave);
-
 
         if (event.getMedia() != null && !event.getMedia().isEmpty()) {
             event.getMedia().forEach(em -> {

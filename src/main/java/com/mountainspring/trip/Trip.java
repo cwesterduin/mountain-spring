@@ -21,6 +21,7 @@ import java.util.UUID;
 @Setter
 @ToString
 @RequiredArgsConstructor
+@Table(name = "trip", schema = "public")
 public class Trip {
 
     @Id

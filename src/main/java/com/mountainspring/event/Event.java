@@ -16,7 +16,6 @@ import org.hibernate.type.SqlTypes;
 
 import java.util.*;
 
-
 @Entity
 @Getter
 @Setter

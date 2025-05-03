@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -28,8 +29,10 @@ public class TripController {
 
     @GetMapping("/frontend")
     public ResponseEntity<?> getAllFrontend() {
+
+        List<Trip> t = tripService.findAllOrderByEarliestEventDate();
         return new ResponseEntity<>(
-                tripRepository.findAll(),
+                t,
                 HttpStatus.OK
         );
     }
