@@ -22,6 +22,7 @@ import java.util.UUID;
 @ToString
 @RequiredArgsConstructor
 @Table(name = "trip", schema = "public")
+@JsonPropertyOrder({"name", "id"})
 public class Trip {
 
     @Id

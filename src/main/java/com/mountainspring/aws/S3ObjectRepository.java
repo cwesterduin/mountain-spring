@@ -17,7 +17,7 @@ public interface S3ObjectRepository extends JpaRepository<S3Object, UUID> {
     @Query(
             value = "select * from s3object WHERE classification = 'file' " +
                     "AND bucket_name = ?1 " +
-                    "AND SUBSTRING(path, 1,LOCATE(SUBSTRING_INDEX(path, '/', -1),path)-1) = ?2",
+                    "AND SUBSTRING(path FROM 1 FOR POSITION((regexp_replace(path, '^.*/', '')) IN path) - 1) = ?2",
             nativeQuery = true)
     List<S3Object> findAllFolderImages(String bucketName, String folderName);
 

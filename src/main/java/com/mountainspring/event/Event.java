@@ -21,6 +21,7 @@ import java.util.*;
 @Setter
 @ToString
 @RequiredArgsConstructor
+@JsonPropertyOrder({"name", "id"})
 public class Event {
 
     @Id

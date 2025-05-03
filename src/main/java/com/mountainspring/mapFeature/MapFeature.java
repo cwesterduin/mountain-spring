@@ -1,5 +1,6 @@
 package com.mountainspring.mapFeature;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.mountainspring.aws.S3Object;
 import com.mountainspring.models.Point;
 import jakarta.persistence.*;
@@ -22,6 +23,7 @@ import java.util.UUID;
 @ToString
 @RequiredArgsConstructor
 @Table(name = "map_feature", schema = "public")
+@JsonPropertyOrder({"name", "id"})
 public class MapFeature {
 
     @Id
