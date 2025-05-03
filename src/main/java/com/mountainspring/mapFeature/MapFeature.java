@@ -21,6 +21,7 @@ import java.util.UUID;
 @Setter
 @ToString
 @RequiredArgsConstructor
+@Table(name = "map_feature", schema = "public")
 public class MapFeature {
 
     @Id

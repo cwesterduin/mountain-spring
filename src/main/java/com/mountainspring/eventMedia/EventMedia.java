@@ -21,6 +21,7 @@ import java.util.UUID;
 @Setter
 @ToString
 @RequiredArgsConstructor
+@Table(name = "event_media", schema = "public")
 public class EventMedia {
 
     @Id
