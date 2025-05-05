@@ -1,7 +1,7 @@
 package com.mountainspring.event;
 
 import com.mountainspring.eventMedia.EventMediaRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,16 +11,14 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/events")
+@AllArgsConstructor
 @CrossOrigin
 public class EventController {
 
-    @Autowired
     private EventRepository eventRepository;
 
-    @Autowired
     private EventMediaRepository eventMediaRepository;
 
-    @Autowired
     private EventService eventService;
 
     @GetMapping("")

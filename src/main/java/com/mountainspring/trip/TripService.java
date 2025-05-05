@@ -4,14 +4,10 @@ import com.mountainspring.event.Event;
 import com.mountainspring.event.EventFrontend;
 import com.mountainspring.event.EventRepository;
 import com.mountainspring.models.Point;
-import net.bytebuddy.matcher.FilterableList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class TripService {
@@ -80,5 +76,18 @@ public class TripService {
             eventRepository.saveAll(eventsWithTrip);
             tripRepository.delete(tripRepository.findById(id).get());
         }
+    }
+
+    public List<Trip> findAllOrderByEarliestEventDate() {
+        List<Trip> trips = tripRepository.findAll();
+
+        return trips.stream()
+        .sorted(Comparator.comparing(
+                trip -> trip.getEvents().stream()
+                        .map(Event::getDate)
+                        .max(Comparator.naturalOrder())
+                        .orElse(null),
+                Comparator.nullsLast(Comparator.reverseOrder())
+        )).toList();
     }
 }

@@ -1,18 +1,19 @@
 package com.mountainspring.mapFeature;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.mountainspring.aws.S3Object;
 import com.mountainspring.models.Point;
-import com.vladmihalcea.hibernate.type.json.JsonStringType;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.Type;
-import org.hibernate.annotations.TypeDef;
+import org.hibernate.type.SqlTypes;
 
-import javax.persistence.*;
 import java.util.Date;
 import java.util.UUID;
 
@@ -21,13 +22,14 @@ import java.util.UUID;
 @Setter
 @ToString
 @RequiredArgsConstructor
-@TypeDef(name = "json", typeClass = JsonStringType.class)
+@Table(name = "map_feature", schema = "public")
+@JsonPropertyOrder({"name", "id"})
 public class MapFeature {
 
     @Id
     @GeneratedValue(generator = "UUID")
     @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
-    @Type(type = "org.hibernate.type.UUIDCharType")
+    @JdbcTypeCode(SqlTypes.VARCHAR)
     private UUID id;
 
     @Column(nullable = false, updatable = false)
@@ -47,7 +49,7 @@ public class MapFeature {
     private String munroOrder;
 
     @Column(columnDefinition = "json")
-    @Type(type = "json")
+    @JdbcTypeCode(SqlTypes.JSON)
     private Point coordinate;
 
     @ManyToOne

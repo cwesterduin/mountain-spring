@@ -1,5 +1,6 @@
 package com.mountainspring.event;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.mountainspring.eventMedia.EventMediaFrontend;
 import com.mountainspring.mapFeature.MapFeature;
 import com.mountainspring.models.Point;
@@ -11,6 +12,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Data
+@JsonPropertyOrder({"name", "id"})
 public class EventFrontend {
     private UUID id;
     private String name;

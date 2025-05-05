@@ -1,17 +1,18 @@
 package com.mountainspring.eventMedia;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.mountainspring.aws.S3Object;
 import com.mountainspring.event.Event;
-import com.nimbusds.jose.shaded.json.annotate.JsonIgnore;
+import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.Hibernate;
 import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.Type;
+import org.hibernate.type.SqlTypes;
 
-import javax.persistence.*;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -20,12 +21,13 @@ import java.util.UUID;
 @Setter
 @ToString
 @RequiredArgsConstructor
+@Table(name = "event_media", schema = "public")
 public class EventMedia {
 
     @Id
     @GeneratedValue(generator = "UUID")
     @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
-    @Type(type = "org.hibernate.type.UUIDCharType")
+    @JdbcTypeCode(SqlTypes.VARCHAR)
     private UUID id;
 
     @ManyToOne
@@ -36,7 +38,7 @@ public class EventMedia {
 
     @ManyToOne
     @JoinColumn(name = "s3_object_id")
-    @Type(type = "org.hibernate.type.UUIDCharType")
+    @JdbcTypeCode(SqlTypes.UUID)
     @JsonIgnore
     @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class , property = "id")
     private S3Object media;

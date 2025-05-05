@@ -5,32 +5,29 @@ import com.mountainspring.eventMedia.EventMedia;
 import com.mountainspring.mapFeature.MapFeature;
 import com.mountainspring.models.Point;
 import com.mountainspring.trip.Trip;
-import com.nimbusds.jose.shaded.json.annotate.JsonIgnore;
-import com.vladmihalcea.hibernate.type.json.JsonStringType;
+import jakarta.persistence.*;
 import lombok.*;
 
 import org.hibernate.Hibernate;
 import org.hibernate.annotations.GenericGenerator;
-import org.hibernate.annotations.Type;
-import org.hibernate.annotations.TypeDef;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
-import javax.persistence.*;
 
 import java.util.*;
-
 
 @Entity
 @Getter
 @Setter
 @ToString
 @RequiredArgsConstructor
-@TypeDef(name = "json", typeClass = JsonStringType.class)
+@JsonPropertyOrder({"name", "id"})
 public class Event {
 
     @Id
     @GeneratedValue(generator = "UUID")
     @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
-    @Type(type = "org.hibernate.type.UUIDCharType")
+    @JdbcTypeCode(SqlTypes.VARCHAR)
     private UUID id;
 
     @Column(unique = true)
@@ -39,7 +36,7 @@ public class Event {
     private Date date;
 
     @Column(columnDefinition = "json")
-    @Type(type = "json")
+    @JdbcTypeCode(SqlTypes.JSON)
     private List<Point> coordinates;
 
     private String descriptionId;

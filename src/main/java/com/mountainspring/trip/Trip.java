@@ -3,12 +3,14 @@ package com.mountainspring.trip;
 import com.fasterxml.jackson.annotation.*;
 import com.mountainspring.aws.S3Object;
 import com.mountainspring.event.Event;
+import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.Hibernate;
 import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.Type;
+import org.hibernate.type.SqlTypes;
 
-import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -19,12 +21,14 @@ import java.util.UUID;
 @Setter
 @ToString
 @RequiredArgsConstructor
+@Table(name = "trip", schema = "public")
+@JsonPropertyOrder({"name", "id"})
 public class Trip {
 
     @Id
     @GeneratedValue(generator = "UUID")
     @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
-    @Type(type = "org.hibernate.type.UUIDCharType")
+    @JdbcTypeCode(SqlTypes.VARCHAR)
     private UUID id;
 
     @Column(unique = true)
